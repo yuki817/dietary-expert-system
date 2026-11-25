@@ -5,7 +5,7 @@ import streamlit as st
 from rdflib import RDF, RDFS, URIRef
 from streamlit_agraph import Config, Edge, Node, agraph
 
-from src.graph_visualizer import graph_data, ingredient_path, label
+from src.graph_visualizer import edge_label, graph_data, ingredient_path, label, node_level
 from src.knowledge_engine import FOOD, KnowledgeEngine, KnowledgeGraphError, STANDARDS
 from src.queries import query_substitutes, simulate_multi_reformulation
 from src.reasoner import DietaryReasoner
@@ -178,20 +178,64 @@ elif page == "Supply chain explorer":
     flagged = {ingredient for result in results.values() for issue in result["issues"]
                for ingredient in issue["ingredients"]}
     nodes, edges = graph_data(engine, product, flagged)
-    st.caption("Blue: product · Orange: ingredient · Red: flagged ingredient · Grey: origin · Green: certificate")
+    levels = node_level(product, nodes, edges)
+    st.caption(
+        "🔵 **Blue**: Product · 🟠 **Amber**: Ingredient · 🔴 **Red**: Flagged Ingredient · "
+        "⚪ **Slate**: Biological Origin · 🟢 **Green**: Certificate"
+    )
     selected = agraph(
-        nodes=[Node(id=str(node), label=label(engine.graph, node), color=COLORS[kind])
-               for node, kind in sorted(nodes.items(), key=lambda item: str(item[0]))],
-        edges=[Edge(source=str(source), target=str(target), label=label(engine.graph, predicate))
-               for source, target, predicate in edges],
-        config=Config(height=500, directed=True, hierarchical=True),
+        nodes=[
+            Node(
+                id=str(node),
+                label=label(engine.graph, node),
+                title=f"{label(engine.graph, node)} ({kind})",
+                color=COLORS[kind],
+                shape="box",
+                level=levels.get(node, 1),
+                margin=10,
+                font={"color": "#ffffff", "size": 14, "face": "Inter, system-ui, sans-serif"},
+                borderWidth=2,
+                shadow=True,
+            )
+            for node, kind in sorted(nodes.items(), key=lambda item: str(item[0]))
+        ],
+        edges=[
+            Edge(
+                source=str(source),
+                target=str(target),
+                label=edge_label(engine.graph, predicate),
+                color="#94a3b8",
+                font={
+                    "color": "#e2e8f0",
+                    "size": 11,
+                    "strokeWidth": 3,
+                    "strokeColor": "#0f172a",
+                    "align": "horizontal",
+                },
+                smooth={"type": "cubicBezier", "forceDirection": "vertical", "roundness": 0.4},
+            )
+            for source, target, predicate in edges
+        ],
+        config=Config(
+            height=560,
+            width="100%",
+            directed=True,
+            physics=False,
+            hierarchical=True,
+            direction="UD",
+            sortMethod="directed",
+            levelSeparation=115,
+            nodeSpacing=190,
+            treeSpacing=210,
+        ),
     )
     choices = sorted(nodes, key=str)
     selected_node = URIRef(selected) if isinstance(selected, str) else None
     default = choices.index(selected_node) if selected_node in nodes else 0
     node = st.selectbox("Node details", choices, index=default,
                         format_func=lambda item: label(engine.graph, item))
-    st.write(f"**{label(engine.graph, node)}**")
+    node_kind = nodes.get(node, "node").capitalize()
+    st.markdown(f"#### {label(engine.graph, node)} (`{node_kind}`)")
     e_num = engine.graph.value(node, FOOD.eNumber)
     if e_num:
         st.caption(f"INS / E-Number: {e_num}")

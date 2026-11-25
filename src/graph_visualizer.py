@@ -2,15 +2,72 @@
 
 from collections import deque
 
-from rdflib import Literal, RDFS
+from rdflib import Literal, RDF, RDFS
 
 from src.knowledge_engine import FOOD
+
+
+FRIENDLY_LABELS = {
+    RDF.type: "Type",
+    RDFS.label: "Label",
+    RDFS.subClassOf: "Subclass of",
+    FOOD.containsIngredient: "contains ingredient",
+    FOOD.derivedFrom: "derived from",
+    FOOD.hasCertificate: "has certificate",
+    FOOD.hasFunctionalRole: "has functional role",
+    FOOD.ethanolPercentage: "ethanol percentage (% v/v)",
+    FOOD.eNumber: "INS / E-Number",
+    FOOD.Halal: "Halal",
+    FOOD.Kosher: "Kosher",
+    FOOD.Vegetarian: "Vegetarian",
+    FOOD.Vegan: "Vegan",
+    FOOD.FoodProduct: "Food Product",
+    FOOD.Ingredient: "Ingredient",
+}
+
+SHORT_EDGE_LABELS = {
+    FOOD.containsIngredient: "contains",
+    FOOD.derivedFrom: "derived from",
+    FOOD.hasCertificate: "certified by",
+}
 
 
 def label(graph, node):
     if isinstance(node, Literal):
         return str(node)
-    return str(graph.value(node, RDFS.label) or graph.namespace_manager.normalizeUri(node))
+    explicit = graph.value(node, RDFS.label)
+    if explicit:
+        return str(explicit)
+    if node in FRIENDLY_LABELS:
+        return FRIENDLY_LABELS[node]
+    raw = str(graph.namespace_manager.normalizeUri(node))
+    if raw.startswith("food:"):
+        return raw.split(":", 1)[1]
+    return raw
+
+
+def edge_label(graph, predicate):
+    if predicate in SHORT_EDGE_LABELS:
+        return SHORT_EDGE_LABELS[predicate]
+    return label(graph, predicate)
+
+
+def node_level(root, nodes, edges):
+    """Compute BFS hierarchy depth from the root product so vis.js lays out top-to-bottom cleanly."""
+    adj = {node: [] for node in nodes}
+    for source, target, _ in edges:
+        adj.setdefault(source, []).append(target)
+    levels = {root: 0}
+    queue = deque([root])
+    while queue:
+        current = queue.popleft()
+        for child in adj.get(current, []):
+            if child not in levels:
+                levels[child] = levels[current] + 1
+                queue.append(child)
+    for node in nodes:
+        levels.setdefault(node, 1)
+    return levels
 
 
 def ingredient_path(engine, root, target):
