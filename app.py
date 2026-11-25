@@ -34,8 +34,7 @@ if page == "Sample page":
 
 try:
     base_engine = KnowledgeEngine.from_turtle(
-        ROOT / "ontology/sample_tbox.ttl", ROOT / "ontology/sample_abox.ttl",
-        ROOT / "ontology/demo_abox.ttl",
+        ROOT / "ontology/food_compliance_tbox.ttl", ROOT / "ontology/food_compliance_abox.ttl",
     )
 except KnowledgeGraphError as exc:
     st.error(str(exc))
@@ -89,8 +88,8 @@ if not products:
     st.warning("No products were found in the knowledge graph.")
     st.stop()
 
-st.caption("Illustrative sample data and provisional rules; not a complete compliance assessment.")
-default_choice = st.session_state.recipe.product if st.session_state.recipe else FOOD.SampleBread
+st.caption("Provided product data and provisional rules; not a complete compliance assessment.")
+default_choice = st.session_state.recipe.product if st.session_state.recipe else FOOD.StrawberryGummyCandy
 default_product = products.index(default_choice) if default_choice in products else 0
 product = st.selectbox("Product", products, index=default_product,
                        format_func=lambda node: label(engine.graph, node))

@@ -5,7 +5,7 @@ from src.knowledge_engine import FOOD, STANDARDS, KnowledgeEngine
 from src.reformulation import candidates, simulate
 
 
-ROOT = Path(__file__).resolve().parents[1] / "ontology"
+ROOT = Path(__file__).resolve().parent / "fixtures"
 
 
 class DemoDataTests(unittest.TestCase):

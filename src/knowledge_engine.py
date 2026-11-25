@@ -85,7 +85,7 @@ class KnowledgeEngine:
                 status = "Not assessed"
             issues = []
             for issue in sorted(inferred.objects(product, FOOD.hasIssue), key=str):
-                if (issue, FOOD.standard, standard) not in inferred:
+                if (issue, FOOD.forStandard, standard) not in inferred:
                     continue
                 issues.append({
                     "id": issue,

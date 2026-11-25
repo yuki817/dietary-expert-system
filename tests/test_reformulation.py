@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class ReformulationTests(unittest.TestCase):
     def setUp(self):
         self.engine = KnowledgeEngine.from_turtle(
-            ROOT / "ontology/sample_tbox.ttl", ROOT / "ontology/sample_abox.ttl"
+            ROOT / "tests/fixtures/sample_tbox.ttl", ROOT / "tests/fixtures/sample_abox.ttl"
         )
 
     def test_matches_are_provisional_and_exclude_known_failures(self):

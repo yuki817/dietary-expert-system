@@ -1,0 +1,269 @@
+@prefix : <http://example.org/food-compliance#> .
+@prefix food: <http://example.org/food-compliance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+#################################################################
+#    Dietary Standards
+#################################################################
+
+food:Halal a food:DietaryStandard ; rdfs:label "Halal" .
+food:Kosher a food:DietaryStandard ; rdfs:label "Kosher" .
+food:Vegetarian a food:DietaryStandard ; rdfs:label "Vegetarian" .
+food:Vegan a food:DietaryStandard ; rdfs:label "Vegan" .
+
+#################################################################
+#    Functional Roles (Codex GSFA Classes)
+#################################################################
+
+food:GellingAgent a food:FunctionalRole ; rdfs:label "Gelling Agent / Thickener" .
+food:Emulsifier a food:FunctionalRole ; rdfs:label "Emulsifier" .
+food:DoughConditioner a food:FunctionalRole ; rdfs:label "Flour Treatment / Dough Conditioner" .
+food:Coloring a food:FunctionalRole ; rdfs:label "Food Coloring" .
+food:Flavoring a food:FunctionalRole ; rdfs:label "Flavoring Agent" .
+food:Coagulant a food:FunctionalRole ; rdfs:label "Enzyme / Coagulant" .
+food:ProteinBase a food:FunctionalRole ; rdfs:label "Protein Base" .
+food:Sweetener a food:FunctionalRole ; rdfs:label "Sweetener" .
+food:BaseIngredient a food:FunctionalRole ; rdfs:label "Primary Culinary Base" .
+
+#################################################################
+#    Biological Origins & Byproduct Instances
+#################################################################
+
+food:Src_Porcine a food:Porcine ; rdfs:label "Porcine (Pig)" .
+food:Src_Bovine a food:Bovine ; rdfs:label "Bovine (Cattle)" .
+food:Src_Poultry a food:Poultry ; rdfs:label "Poultry (Chicken)" .
+food:Src_Shellfish a food:Marine ; rdfs:label "Marine Shellfish (Shrimp/Crab)" .
+food:Src_Insect a food:Insect ; rdfs:label "Cochineal Insect" .
+food:Src_Plant a food:PlantOrigin ; rdfs:label "Plant / Botanical" .
+food:Src_Microbial a food:MicrobialOrigin ; rdfs:label "Microbial Fermentation" .
+food:Src_Synthetic a food:SyntheticOrigin ; rdfs:label "Synthetic Chemical" .
+
+food:Byprod_MeatTissue a food:MeatTissue ; rdfs:label "Animal Meat Tissue" .
+food:Byprod_AnimalFat a food:AnimalFat ; rdfs:label "Animal Fat" .
+food:Byprod_AnimalEnzyme a food:AnimalEnzyme ; rdfs:label "Animal Enzyme (Rennet)" .
+food:Byprod_Dairy a food:Dairy ; rdfs:label "Dairy (Milk/Whey)" .
+food:Byprod_Honey a food:Honey ; rdfs:label "Bee Honey" .
+
+#################################################################
+#    Certificates
+#################################################################
+
+food:HalalCert_01 a food:HalalCert ; rdfs:label "MUI Halal Certificate #H-2026-01" .
+food:HalalCert_02 a food:HalalCert ; rdfs:label "JAKIM Halal Certificate #H-2026-02" .
+food:KosherCert_01 a food:KosherCert ; rdfs:label "OU Kosher Certificate #K-2026-01" .
+food:KosherCert_02 a food:KosherCert ; rdfs:label "OK Kosher Pareve Certificate #K-2026-02" .
+
+#################################################################
+#    Ingredients Catalog (22 Instances, Multi-Level Nesting)
+#################################################################
+
+# 1. Gelling Agents
+food:PorcineGelatin a food:Ingredient ;
+    rdfs:label "Porcine Gelatin" ;
+    food:derivedFrom food:Src_Porcine, food:Byprod_AnimalFat ;
+    food:hasFunctionalRole food:GellingAgent ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:BovineGelatin_Uncert a food:Ingredient ;
+    rdfs:label "Bovine Gelatin (Uncertified)" ;
+    food:derivedFrom food:Src_Bovine, food:Byprod_AnimalFat ;
+    food:hasFunctionalRole food:GellingAgent ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:AgarAgar a food:Ingredient ;
+    rdfs:label "Agar-Agar (E406)" ;
+    food:eNumber "E406" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:GellingAgent ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:CitrusPectin a food:Ingredient ;
+    rdfs:label "Citrus Pectin (E440)" ;
+    food:eNumber "E440" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:GellingAgent ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 2. Emulsifiers
+food:Emulsifier_E471_Animal a food:Ingredient ;
+    rdfs:label "Mono- and Diglycerides (E471 - Animal Source)" ;
+    food:eNumber "E471" ;
+    food:derivedFrom food:Src_Bovine, food:Byprod_AnimalFat ;
+    food:hasFunctionalRole food:Emulsifier ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:SoyLecithin a food:Ingredient ;
+    rdfs:label "Soy Lecithin (E322)" ;
+    food:eNumber "E322" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:Emulsifier ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 3. Compound Ingredient -> Nested Sub-Ingredient (3-Level Supply Chain)
+food:CommercialDoughConditioner a food:Ingredient ;
+    rdfs:label "Commercial Bread Improver Mix" ;
+    food:containsIngredient food:LCysteine_E920, food:AscorbicAcid_E300 ;
+    food:hasFunctionalRole food:DoughConditioner ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:LCysteine_E920 a food:Ingredient ;
+    rdfs:label "L-Cysteine (E920)" ;
+    food:eNumber "E920" ;
+    food:derivedFrom food:Src_Porcine ;
+    food:hasFunctionalRole food:DoughConditioner ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:AscorbicAcid_E300 a food:Ingredient ;
+    rdfs:label "Ascorbic Acid (E300)" ;
+    food:eNumber "E300" ;
+    food:derivedFrom food:Src_Synthetic ;
+    food:hasCertificate food:HalalCert_02, food:KosherCert_02 ;
+    food:hasFunctionalRole food:DoughConditioner ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:MicrobialTransglutaminase a food:Ingredient ;
+    rdfs:label "Microbial Dough Enzyme" ;
+    food:derivedFrom food:Src_Microbial ;
+    food:hasCertificate food:HalalCert_02, food:KosherCert_02 ;
+    food:hasFunctionalRole food:DoughConditioner ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 4. Colorings
+food:Carmine_E120 a food:Ingredient ;
+    rdfs:label "Carmine Red (E120)" ;
+    food:eNumber "E120" ;
+    food:derivedFrom food:Src_Insect ;
+    food:hasFunctionalRole food:Coloring ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:BeetrootRed_E162 a food:Ingredient ;
+    rdfs:label "Beetroot Red (E162)" ;
+    food:eNumber "E162" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:Coloring ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 5. Flavorings & Ethanol Threshold
+food:NaturalVanillaExtract a food:Ingredient ;
+    rdfs:label "Natural Vanilla Extract (Alcohol Base)" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasFunctionalRole food:Flavoring ;
+    food:ethanolPercentage "1.2"^^xsd:float .
+
+food:VanillinSynthetic a food:Ingredient ;
+    rdfs:label "Pure Vanillin Powder" ;
+    food:derivedFrom food:Src_Synthetic ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:Flavoring ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 6. Dairy, Cheese & Coagulants (Compound Ingredient)
+food:CheddarCheese a food:Ingredient ;
+    rdfs:label "Aged Cheddar Cheese" ;
+    food:containsIngredient food:PasteurizedMilk, food:AnimalRennet ;
+    food:derivedFrom food:Byprod_Dairy ;
+    food:hasFunctionalRole food:BaseIngredient ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:PasteurizedMilk a food:Ingredient ;
+    rdfs:label "Pasteurized Cow Milk" ;
+    food:derivedFrom food:Byprod_Dairy ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_01 ;
+    food:hasFunctionalRole food:BaseIngredient ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:AnimalRennet a food:Ingredient ;
+    rdfs:label "Calf Rennet Enzyme" ;
+    food:derivedFrom food:Src_Bovine, food:Byprod_AnimalEnzyme ;
+    food:hasFunctionalRole food:Coagulant ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:MicrobialRennet a food:Ingredient ;
+    rdfs:label "Microbial Chymosin Rennet" ;
+    food:derivedFrom food:Src_Microbial ;
+    food:hasCertificate food:HalalCert_02, food:KosherCert_02 ;
+    food:hasFunctionalRole food:Coagulant ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:WheyProteinIsolate a food:Ingredient ;
+    rdfs:label "Whey Protein Isolate" ;
+    food:derivedFrom food:Byprod_Dairy ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_01 ;
+    food:hasFunctionalRole food:ProteinBase ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:SoyProteinIsolate a food:Ingredient ;
+    rdfs:label "Soy Protein Isolate" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:ProteinBase ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 7. Meats, Sweeteners & Primary Bases
+food:BeefPatty_Uncert a food:Ingredient ;
+    rdfs:label "Ground Beef Patty (Uncertified)" ;
+    food:derivedFrom food:Src_Bovine, food:Byprod_MeatTissue ;
+    food:hasFunctionalRole food:BaseIngredient ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:OrganicHoney a food:Ingredient ;
+    rdfs:label "Organic Wildflower Honey" ;
+    food:derivedFrom food:Byprod_Honey ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:Sweetener ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:AgaveNectar a food:Ingredient ;
+    rdfs:label "Organic Agave Nectar" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:Sweetener ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:WheatFlour a food:Ingredient ;
+    rdfs:label "Unbleached Wheat Flour" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_02 ;
+    food:hasFunctionalRole food:BaseIngredient ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+#################################################################
+#    Benchmark Food Products (6 Test Cases)
+#################################################################
+
+# Product 1: Fails all 4 standards (Porcine Gelatin + Insect Carmine E120)
+food:StrawberryGummyCandy a food:FoodProduct ;
+    rdfs:label "Strawberry Gummy Candy" ;
+    food:containsIngredient food:PorcineGelatin, food:Carmine_E120, food:AgaveNectar .
+
+# Product 2: Halal Audit (uncertified beef/rennet) + Kosher Fail (Meat + Dairy mixing)
+food:BeefCheeseBurger a food:FoodProduct ;
+    rdfs:label "Classic Beef Cheeseburger" ;
+    food:containsIngredient food:BeefPatty_Uncert, food:CheddarCheese, food:WheatFlour .
+
+# Product 3: 3-Level Nested Trap (Bread -> DoughConditioner -> E920 L-Cysteine -> Porcine)
+food:ArtisanSourdoughBread a food:FoodProduct ;
+    rdfs:label "Artisan Sourdough Bread" ;
+    food:containsIngredient food:WheatFlour, food:CommercialDoughConditioner, food:SoyLecithin .
+
+# Product 4: 100% Compliant across Halal, Kosher, Vegetarian, and Vegan
+food:PlantBasedRamen a food:FoodProduct ;
+    rdfs:label "Plant-Based Miso Ramen" ;
+    food:containsIngredient food:WheatFlour, food:AgarAgar, food:SoyLecithin, food:SoyProteinIsolate .
+
+# Product 5: Halal/Kosher/Vegetarian Pass, but Fails Vegan (Dairy + Honey)
+food:WheyHoneyProteinBar a food:FoodProduct ;
+    rdfs:label "Whey & Honey Energy Bar" ;
+    food:containsIngredient food:WheyProteinIsolate, food:OrganicHoney, food:SoyLecithin .
+
+# Product 6: Fails Halal due to Ethanol > 0.5% (1.2% Vanilla Extract) + Fails Vegan (Milk)
+food:VanillaCreamPastry a food:FoodProduct ;
+    rdfs:label "French Vanilla Cream Pastry" ;
+    food:containsIngredient food:WheatFlour, food:PasteurizedMilk, food:NaturalVanillaExtract .

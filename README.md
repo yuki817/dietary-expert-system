@@ -3,7 +3,8 @@
 ## Run locally
 
 The application includes a provisional scorecard, supply chain explorer, and
-reformulation advisor using fictional sample and demo data. With Python 3.10 or newer installed:
+reformulation advisor using the supplied ontology and product data. With Python
+3.10 or newer installed:
 
 ```sh
 python3 -m venv .venv
@@ -13,7 +14,7 @@ streamlit run app.py
 ```
 
 Open the local URL printed by Streamlit and select a use case in the sidebar.
-The sample graph and provisional rules do not provide a complete compliance
+The supplied graph and provisional rules do not provide a complete compliance
 assessment.
 
 The advisor shows ingredients with a matching functional role and no detected
@@ -24,18 +25,16 @@ the selected ingredient in a graph copy and evaluates the whole product again.
 Use the sidebar to create one custom recipe for the current session. Add new
 ingredients (optionally with ethanol percentages) under the recipe or another
 custom ingredient, or link existing ingredients. The recipe can then be selected
-in the scorecard and explorer. Its graph is isolated from the sample files;
+in the scorecard and explorer. Its graph is isolated from the source files;
 discarding the recipe or ending the session removes it. New ingredients do not
 have an origin by default, so their absence of findings is not a Pass.
 
 ### Knowledge graph development
 
-`ontology/sample_tbox.ttl`, `ontology/sample_abox.ttl`, and
-`ontology/demo_abox.ttl` are integration fixtures, not the final ontology or
-benchmark data. The app includes six illustrative products: sample bread and
-demo candy, beef snack, burger, pastry, and plant snack. They exercise nested
-porcine ingredients, a Halal audit, meat and dairy, ethanol, and a case with no
-current findings. `Not assessed` does not mean the product passes a standard.
+The app loads `ontology/food_compliance_tbox.ttl` and
+`ontology/food_compliance_abox.ttl`, which include six benchmark products and
+their ingredients. Older sample graphs are retained as test fixtures under
+`tests/fixtures/`. `Not assessed` does not mean the product passes a standard.
 `KnowledgeEngine.from_turtle`
 loads one or more Turtle files; its product and ingredient lists use explicit RDF
 types, and its traversal returns direct ingredient edges reachable from a root.
@@ -65,7 +64,7 @@ before benchmark acceptance.
 3. Deploy, inspect the build logs, and check the three workflows at the app URL.
    The root `requirements.txt` supplies the Python dependencies.
 
-The current application uses sample data and provisional rules. Deployment is
+The current application uses supplied data and provisional rules. Deployment is
 not final acceptance; complete the checks in `VALIDATION.md` first. See the
 [Streamlit deployment guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy).
 

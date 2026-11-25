@@ -4,7 +4,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 CONSTRUCT {
   ?product food:isNonCompliantWith food:Kosher ; food:hasIssue ?issue .
-  ?issue a food:ComplianceIssue ; food:standard food:Kosher ;
+  ?issue a food:ComplianceIssue ; food:forStandard food:Kosher ;
     food:flaggedIngredient ?meat, ?dairy ; rdfs:label "Kosher violation: meat and dairy together." .
 }
 WHERE {
