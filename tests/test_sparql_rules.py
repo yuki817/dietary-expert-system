@@ -84,6 +84,9 @@ class SparqlRulesTests(unittest.TestCase):
         self.assertIn((FOOD.Candy, FOOD.isNonCompliantWith, FOOD.Vegan), inferred)
         self.assertNotIn((FOOD.Bar, FOOD.isNonCompliantWith, FOOD.Vegetarian), inferred)
         self.assertIn((FOOD.Bar, FOOD.isNonCompliantWith, FOOD.Vegan), inferred)
+        for issue in inferred.subjects(RDF.type, FOOD.ComplianceIssue):
+            msg = str(inferred.value(issue, RDFS.label))
+            self.assertNotIn("http://example.org/food-compliance#", msg)
 
     def test_substitution_rules_construct_valid_plant_microbial_synthetic_alternatives(self):
         graph = Graph()

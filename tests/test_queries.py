@@ -5,6 +5,7 @@ from src.queries import (
     query_compliance_scorecard,
     query_substitutes,
     query_supply_chain_trace,
+    simulate_multi_reformulation,
     simulate_reformulation,
 )
 from src.reasoner import DietaryReasoner
@@ -74,6 +75,25 @@ class QueriesTests(unittest.TestCase):
         self.assertEqual(pastry_sim[FOOD.Kosher]["status"], "Pass")
         self.assertEqual(pastry_sim[FOOD.Vegetarian]["status"], "Pass")
         self.assertEqual(pastry_sim[FOOD.Vegan]["status"], "Fail")
+
+    def test_simulate_multi_reformulation_replaces_multiple_flagged_ingredients_at_once(self):
+        # StrawberryGummyCandy has PorcineGelatin AND Carmine; add BeetrootRed for Coloring
+        from rdflib import Literal, RDF, RDFS
+        self.base_graph.add((FOOD.BeetrootRed, RDF.type, FOOD.Ingredient))
+        self.base_graph.add((FOOD.BeetrootRed, RDFS.label, Literal("Beetroot Red")))
+        self.base_graph.add((FOOD.BeetrootRed, FOOD.derivedFrom, FOOD.PlantSrc))
+        self.base_graph.add((FOOD.BeetrootRed, FOOD.hasFunctionalRole, FOOD.Coloring))
+
+        simulated = simulate_multi_reformulation(
+            self.reasoner,
+            FOOD.StrawberryGummyCandy,
+            {
+                FOOD.PorcineGelatin: FOOD.AgarAgar,
+                FOOD.Carmine: FOOD.BeetrootRed,
+            },
+        )
+        for std in STANDARDS:
+            self.assertEqual(simulated[std]["status"], "Pass")
 
 
 if __name__ == "__main__":

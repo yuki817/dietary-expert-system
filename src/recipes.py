@@ -32,7 +32,7 @@ class RecipeBuilder:
         if parent not in self.owned:
             raise ValueError("Choose the recipe or one of its custom ingredients as the parent.")
 
-    def add_ingredient(self, parent, name, ethanol=None):
+    def add_ingredient(self, parent, name, ethanol=None, origin=None, role=None, certificates=()):
         self._check_parent(parent)
         name = _name(name)
         if ethanol is not None and (not math.isfinite(ethanol) or not 0 <= ethanol <= 100):
@@ -42,6 +42,12 @@ class RecipeBuilder:
         self.graph.add((ingredient, RDFS.label, Literal(name)))
         if ethanol is not None:
             self.graph.add((ingredient, FOOD.ethanolPercentage, Literal(ethanol)))
+        if origin is not None:
+            self.graph.add((ingredient, FOOD.derivedFrom, origin))
+        if role is not None:
+            self.graph.add((ingredient, FOOD.hasFunctionalRole, role))
+        for cert in certificates or ():
+            self.graph.add((ingredient, FOOD.hasCertificate, cert))
         self.graph.add((parent, FOOD.containsIngredient, ingredient))
         self.owned.add(ingredient)
         return ingredient

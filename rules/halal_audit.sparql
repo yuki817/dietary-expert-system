@@ -4,7 +4,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 CONSTRUCT {
   ?product food:requiresAuditFor food:Halal ; food:hasIssue ?issue .
-  ?issue a food:ComplianceIssue ; food:forStandard food:Halal ;
+  ?issue a food:ComplianceIssue ; food:forStandard food:Halal ; food:standard food:Halal ;
     food:flaggedIngredient ?ingredient ; rdfs:label "Halal certification required." .
 }
 WHERE {

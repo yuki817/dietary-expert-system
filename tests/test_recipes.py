@@ -34,3 +34,20 @@ class RecipeTests(unittest.TestCase):
             builder.add_ingredient(child, " ")
         with self.assertRaises(ValueError):
             RecipeBuilder(self.source, " ")
+
+    def test_add_ingredient_supports_origin_role_and_certificates(self):
+        self.source.add((FOOD.Src_Plant, RDF.type, FOOD.PlantOrigin))
+        self.source.add((FOOD.GellingAgent, RDF.type, FOOD.FunctionalRole))
+        self.source.add((FOOD.HalalCert_01, RDF.type, FOOD.HalalCert))
+        builder = RecipeBuilder(self.source, "Certified Plant Jelly")
+        ing = builder.add_ingredient(
+            builder.product,
+            "Custom Agar",
+            ethanol=0.0,
+            origin=FOOD.Src_Plant,
+            role=FOOD.GellingAgent,
+            certificates=[FOOD.HalalCert_01],
+        )
+        self.assertIn((ing, FOOD.derivedFrom, FOOD.Src_Plant), builder.graph)
+        self.assertIn((ing, FOOD.hasFunctionalRole, FOOD.GellingAgent), builder.graph)
+        self.assertIn((ing, FOOD.hasCertificate, FOOD.HalalCert_01), builder.graph)

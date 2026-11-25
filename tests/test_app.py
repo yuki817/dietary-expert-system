@@ -26,7 +26,14 @@ class AppTests(unittest.TestCase):
         app.button[0].click().run()
         self.assertFalse(app.exception)
         self.assertTrue(any(item.value == "Simulated product results" for item in app.subheader))
-        self.assertTrue(any("Not assessed" in item.value for item in app.markdown))
+        self.assertTrue(any("Pass" in item.value or "Not assessed" in item.value for item in app.markdown))
+
+    def test_plant_based_ramen_displays_green_pass_cards(self):
+        from src.knowledge_engine import FOOD
+        app = AppTest.from_file(str(APP), default_timeout=30).run()
+        app.selectbox[0].set_value(FOOD.PlantBasedRamen).run()
+        self.assertFalse(app.exception)
+        self.assertEqual([item.value for item in app.success], ["Pass"] * 4)
 
     def test_custom_recipe_is_evaluated_and_explorable(self):
         app = AppTest.from_file(str(APP), default_timeout=30).run()

@@ -13,7 +13,9 @@ WHERE {
     ?ingredient food:derivedFrom ?source .
     ?source rdf:type/rdfs:subClassOf* ?kind .
     FILTER(?kind IN (food:Porcine, food:Insect))
-    BIND(CONCAT("Forbidden Halal origin: ", STR(?kind)) AS ?message)
+    OPTIONAL { ?kind rdfs:label ?kindLabel . }
+    BIND(COALESCE(?kindLabel, STRAFTER(STR(?kind), "#"), STR(?kind)) AS ?kindName)
+    BIND(CONCAT("Forbidden Halal origin: ", ?kindName) AS ?message)
     BIND(CONCAT("origin-", STR(?kind)) AS ?reason)
   } UNION {
     ?ingredient food:ethanolPercentage ?ethanol .

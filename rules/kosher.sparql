@@ -15,7 +15,9 @@ WHERE {
     ?flagged1 food:derivedFrom ?source .
     ?source rdf:type/rdfs:subClassOf* ?kind .
     FILTER(?kind IN (food:Porcine, food:Marine, food:Insect))
-    BIND(CONCAT("Kosher violation (Treif): forbidden origin ", STR(?kind)) AS ?message)
+    OPTIONAL { ?kind rdfs:label ?kindLabel . }
+    BIND(COALESCE(?kindLabel, STRAFTER(STR(?kind), "#"), STR(?kind)) AS ?kindName)
+    BIND(CONCAT("Kosher violation (Treif): forbidden origin ", ?kindName) AS ?message)
     BIND(CONCAT("treif-", STR(?flagged1), "-", STR(?kind)) AS ?key)
   } UNION {
     ?product food:containsIngredient+ ?flagged1 .
@@ -27,7 +29,9 @@ WHERE {
       ?flagged1 food:hasCertificate ?cert .
       ?cert rdf:type/rdfs:subClassOf* food:KosherCert .
     }
-    BIND(CONCAT("Kosher violation: missing Kosher certification on animal derivative ", STR(?flagged1)) AS ?message)
+    OPTIONAL { ?flagged1 rdfs:label ?ingLabel . }
+    BIND(COALESCE(?ingLabel, STRAFTER(STR(?flagged1), "#"), STR(?flagged1)) AS ?ingName)
+    BIND(CONCAT("Kosher violation: missing Kosher certification on animal derivative ", ?ingName) AS ?message)
     BIND(CONCAT("uncert-", STR(?flagged1)) AS ?key)
   } UNION {
     ?product food:containsIngredient+ ?flagged1, ?flagged2 .

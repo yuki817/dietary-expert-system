@@ -21,6 +21,8 @@ WHERE {
     VALUES ?kind { food:AnimalByproduct food:Dairy food:Whey food:Casein food:Cheese food:Egg food:Honey }
     BIND(food:Vegan AS ?standard)
   }
-  BIND(CONCAT("Excluded dietary source: ", STR(?kind)) AS ?message)
+  OPTIONAL { ?kind rdfs:label ?kindLabel . }
+  BIND(COALESCE(?kindLabel, STRAFTER(STR(?kind), "#"), STR(?kind)) AS ?kindName)
+  BIND(CONCAT("Excluded dietary source: ", ?kindName) AS ?message)
   BIND(IRI(CONCAT("http://example.org/issue/", SHA256(CONCAT(STR(?product), "|", STR(?standard), "|", STR(?ingredient), "|", STR(?kind))))) AS ?issue)
 }

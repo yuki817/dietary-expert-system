@@ -243,3 +243,34 @@ def simulate_reformulation(
         modified_graph.add((parent, FOOD.containsIngredient, replacement_ingredient))
 
     return DietaryReasoner(modified_graph, rule_files=reasoner.rule_files).evaluate_product(product)
+
+
+def simulate_multi_reformulation(
+    reasoner: DietaryReasoner,
+    product: URIRef,
+    replacements: dict[URIRef, URIRef],
+) -> dict:
+    """Replace multiple flagged ingredients simultaneously in a graph copy and re-run inference."""
+    if not replacements:
+        raise ValueError("Provide at least one ingredient replacement.")
+
+    modified_graph = _clone_graph(reasoner.base_graph)
+    for original_ingredient, replacement_ingredient in replacements.items():
+        if original_ingredient == replacement_ingredient:
+            raise ValueError("Select a different replacement ingredient.")
+        if (replacement_ingredient, RDF.type, FOOD.Ingredient) not in modified_graph:
+            raise ValueError("Replacement must be an explicitly typed Ingredient in the graph.")
+
+        engine = KnowledgeEngine(modified_graph)
+        parents = {parent for parent, child in engine.ingredient_edges(product) if child == original_ingredient}
+        if not parents:
+            raise ValueError(f"The original ingredient {original_ingredient} is not part of this product.")
+        descendants = {child for _, child in engine.ingredient_edges(replacement_ingredient)} | {replacement_ingredient}
+        if parents & descendants:
+            raise ValueError("This replacement would create a cycle.")
+
+        for parent in parents:
+            modified_graph.remove((parent, FOOD.containsIngredient, original_ingredient))
+            modified_graph.add((parent, FOOD.containsIngredient, replacement_ingredient))
+
+    return DietaryReasoner(modified_graph, rule_files=reasoner.rule_files).evaluate_product(product)
