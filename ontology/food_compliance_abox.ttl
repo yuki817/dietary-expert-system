@@ -234,8 +234,78 @@ food:WheatFlour a food:Ingredient ;
     food:hasFunctionalRole food:BaseIngredient ;
     food:ethanolPercentage "0.0"^^xsd:float .
 
+# 8. Milk & Dairy-Based Ingredients (Halal & Kosher Certified)
+food:HeavyCream a food:Ingredient ;
+    rdfs:label "Pasteurized Heavy Dairy Cream" ;
+    food:derivedFrom food:Byprod_Dairy ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_01 ;
+    food:hasFunctionalRole food:BaseIngredient ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:DairyButter a food:Ingredient ;
+    rdfs:label "Cultured Dairy Butter" ;
+    food:derivedFrom food:Byprod_Dairy ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_01 ;
+    food:hasFunctionalRole food:Emulsifier ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:SkimMilkPowder a food:Ingredient ;
+    rdfs:label "Skim Milk Powder" ;
+    food:derivedFrom food:Byprod_Dairy ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_01 ;
+    food:hasFunctionalRole food:ProteinBase ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 9. Clearly Halal Certified Meat & Bovine Ingredients
+food:HalalCertifiedBeefSlices a food:Ingredient ;
+    rdfs:label "Halal Certified Beef Slices (MUI Certified)" ;
+    food:derivedFrom food:Src_Bovine, food:Byprod_MeatTissue ;
+    food:hasCertificate food:HalalCert_01 ;
+    food:hasFunctionalRole food:ProteinBase ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:KosherHalalChickenBreast a food:Ingredient ;
+    rdfs:label "Halal & Kosher Certified Chicken Breast" ;
+    food:derivedFrom food:Src_Poultry, food:Byprod_MeatTissue ;
+    food:hasCertificate food:HalalCert_01, food:KosherCert_01 ;
+    food:hasFunctionalRole food:ProteinBase ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:HalalBovineGelatin a food:Ingredient ;
+    rdfs:label "Halal Certified Bovine Gelatin (E428)" ;
+    food:eNumber "E428" ;
+    food:derivedFrom food:Src_Bovine, food:Byprod_AnimalFat ;
+    food:hasCertificate food:HalalCert_01 ;
+    food:hasFunctionalRole food:GellingAgent ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:BeefTallowShortening a food:Ingredient ;
+    rdfs:label "Beef Tallow Shortening (Uncertified)" ;
+    food:derivedFrom food:Src_Bovine, food:Byprod_AnimalFat ;
+    food:hasFunctionalRole food:Emulsifier ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+# 10. Clearly Haram Ingredients (Porcine Meat, Porcine Lard, High-Ethanol Wine)
+food:PorkBaconBits a food:Ingredient ;
+    rdfs:label "Smoked Pork Bacon Bits (Haram - Porcine Meat)" ;
+    food:derivedFrom food:Src_Porcine, food:Byprod_MeatTissue ;
+    food:hasFunctionalRole food:ProteinBase ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:PorcineLard a food:Ingredient ;
+    rdfs:label "Rendered Pork Lard (Haram - Porcine Fat)" ;
+    food:derivedFrom food:Src_Porcine, food:Byprod_AnimalFat ;
+    food:hasFunctionalRole food:Emulsifier ;
+    food:ethanolPercentage "0.0"^^xsd:float .
+
+food:CookingRedWine a food:Ingredient ;
+    rdfs:label "Cooking Red Wine (Haram - 12.5% Alcohol)" ;
+    food:derivedFrom food:Src_Plant ;
+    food:hasFunctionalRole food:Flavoring ;
+    food:ethanolPercentage "12.5"^^xsd:float .
+
 #################################################################
-#    Benchmark Food Products (6 Test Cases)
+#    Benchmark Food Products (10 Test Cases)
 #################################################################
 
 # Product 1: Fails all 4 standards (Porcine Gelatin + Insect Carmine E120)
@@ -267,3 +337,23 @@ food:WheyHoneyProteinBar a food:FoodProduct ;
 food:VanillaCreamPastry a food:FoodProduct ;
     rdfs:label "French Vanilla Cream Pastry" ;
     food:containsIngredient food:WheatFlour, food:PasteurizedMilk, food:NaturalVanillaExtract .
+
+# Product 7: Meat + Milk Product (Halal Pass via Certified Chicken & Dairy, Kosher Fail due to Meat+Dairy mixing)
+food:CreamyChickenAlfredoPasta a food:FoodProduct ;
+    rdfs:label "Creamy Chicken Alfredo Pasta (Meat & Milk)" ;
+    food:containsIngredient food:KosherHalalChickenBreast, food:HeavyCream, food:DairyButter, food:WheatFlour .
+
+# Product 8: Pure Milk-Based Product (Halal/Kosher/Vegetarian Pass, Vegan Fail)
+food:ClassicMilkIceCream a food:FoodProduct ;
+    rdfs:label "Classic Dairy Milk Ice Cream (Milk-Based)" ;
+    food:containsIngredient food:PasteurizedMilk, food:HeavyCream, food:SkimMilkPowder, food:CitrusPectin, food:VanillinSynthetic, food:AgaveNectar .
+
+# Product 9: Clearly Halal Meat-Based Product (Halal Pass via MUI Certified Beef, Kosher/Vegetarian/Vegan Fail)
+food:HalalBeefSteakBowl a food:FoodProduct ;
+    rdfs:label "Halal Certified Beef Steak Bowl (Meat-Based)" ;
+    food:containsIngredient food:HalalCertifiedBeefSlices, food:WheatFlour, food:SoyLecithin .
+
+# Product 10: Clearly Haram Meat & Wine Product (Fails Halal, Kosher, Vegetarian, and Vegan)
+food:PorkWineBraisedStew a food:FoodProduct ;
+    rdfs:label "Pork & Red Wine Braised Stew (Haram)" ;
+    food:containsIngredient food:PorkBaconBits, food:PorcineLard, food:CookingRedWine, food:WheatFlour .

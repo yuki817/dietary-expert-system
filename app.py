@@ -275,6 +275,10 @@ if (
     or not hasattr(st.session_state.recipe, "graph")
 ):
     st.session_state.recipe = RecipeBuilder(base_engine.graph)
+else:
+    for _triple in base_engine.graph:
+        if _triple not in st.session_state.recipe.graph:
+            st.session_state.recipe.graph.add(_triple)
 if "selected_product" not in st.session_state:
     st.session_state.selected_product = FOOD.StrawberryGummyCandy
 if "theme_choice" not in st.session_state:
