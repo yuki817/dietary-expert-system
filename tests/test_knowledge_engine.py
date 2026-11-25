@@ -16,11 +16,12 @@ class KnowledgeEngineTests(unittest.TestCase):
             ROOT / "ontology/sample_tbox.ttl", ROOT / "ontology/sample_abox.ttl"
         )
         self.assertEqual(engine.products(), [FOOD.SampleBread])
-        self.assertEqual(engine.ingredients(), [FOOD.SampleDough, FOOD.SampleFlour])
+        self.assertEqual(engine.ingredients(), [FOOD.SampleAdditive, FOOD.SampleDough, FOOD.SampleFlour])
         self.assertEqual(engine.direct_ingredients(FOOD.SampleBread), [FOOD.SampleDough])
         self.assertEqual(
             engine.ingredient_edges(FOOD.SampleBread),
-            [(FOOD.SampleBread, FOOD.SampleDough), (FOOD.SampleDough, FOOD.SampleFlour)],
+            [(FOOD.SampleBread, FOOD.SampleDough), (FOOD.SampleDough, FOOD.SampleAdditive),
+             (FOOD.SampleDough, FOOD.SampleFlour)],
         )
 
     def test_traversal_retains_shared_edges_and_terminates_on_cycles(self):

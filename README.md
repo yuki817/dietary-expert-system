@@ -2,9 +2,9 @@
 
 ## Run locally
 
-The application is currently a navigation skeleton. The graph loader and
-provisional compliance rules are available in Python but are not yet connected
-to the UI. With Python 3.10 or newer installed:
+The application includes a provisional scorecard and supply chain explorer
+using sample data. The reformulation advisor is a placeholder. With Python 3.10
+or newer installed:
 
 ```sh
 python3 -m venv .venv
@@ -13,8 +13,9 @@ python -m pip install -r requirements.txt
 streamlit run app.py
 ```
 
-Open the local URL printed by Streamlit. Select a use case in the sidebar to
-view its placeholder page.
+Open the local URL printed by Streamlit and select a use case in the sidebar.
+The sample graph and provisional rules do not provide a complete compliance
+assessment.
 
 ### Knowledge graph development
 

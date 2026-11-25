@@ -7,5 +7,8 @@ food:SampleBread a food:FoodProduct ;
     food:containsIngredient food:SampleDough .
 food:SampleDough a food:Ingredient ;
     rdfs:label "Sample dough" ;
-    food:containsIngredient food:SampleFlour .
+    food:containsIngredient food:SampleFlour, food:SampleAdditive .
 food:SampleFlour a food:Ingredient ; rdfs:label "Sample flour" .
+food:SampleAdditive a food:Ingredient ; rdfs:label "Sample additive" ;
+    food:derivedFrom food:SamplePorcineSource .
+food:SamplePorcineSource a food:Porcine ; rdfs:label "Sample porcine source" .
