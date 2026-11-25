@@ -16,7 +16,8 @@ class KnowledgeEngineTests(unittest.TestCase):
             ROOT / "ontology/sample_tbox.ttl", ROOT / "ontology/sample_abox.ttl"
         )
         self.assertEqual(engine.products(), [FOOD.SampleBread])
-        self.assertEqual(engine.ingredients(), [FOOD.SampleAdditive, FOOD.SampleDough, FOOD.SampleFlour])
+        self.assertEqual(engine.ingredients(), [FOOD.SampleAdditive, FOOD.SampleAlternative,
+                                                FOOD.SampleDough, FOOD.SampleFlour])
         self.assertEqual(engine.direct_ingredients(FOOD.SampleBread), [FOOD.SampleDough])
         self.assertEqual(
             engine.ingredient_edges(FOOD.SampleBread),

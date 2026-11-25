@@ -7,6 +7,7 @@ from streamlit_agraph import Config, Edge, Node, agraph
 from src.graph_visualizer import graph_data, ingredient_path, label
 from src.knowledge_engine import FOOD, KnowledgeEngine, KnowledgeGraphError, STANDARDS
 from src.recipes import RecipeBuilder
+from src.reformulation import candidates, simulate
 
 
 ROOT = Path(__file__).resolve().parent
@@ -25,11 +26,6 @@ page = st.sidebar.radio(
     "Choose a use case",
     ("Compliance scorecard", "Supply chain explorer", "Reformulation advisor"),
 )
-
-if page == "Reformulation advisor":
-    st.header("Reformulation advisor")
-    st.info("Ingredient suggestions and reformulation simulation are coming soon.")
-    st.stop()
 
 try:
     base_engine = KnowledgeEngine.from_turtle(
@@ -67,8 +63,8 @@ else:
         name = st.text_input("New ingredient name")
         specify_ethanol = st.checkbox("Set ethanol percentage")
         ethanol = st.number_input("Ethanol percentage", min_value=0.0, max_value=100.0, value=0.0)
-        candidates = KnowledgeEngine(recipe.graph).ingredients()
-        existing = st.selectbox("Existing ingredient", candidates,
+        ingredient_options = KnowledgeEngine(recipe.graph).ingredients()
+        existing = st.selectbox("Existing ingredient", ingredient_options,
                                 format_func=lambda node: label(recipe.graph, node))
         add = st.form_submit_button("Add ingredient")
     if add:
@@ -115,7 +111,7 @@ if page == "Compliance scorecard":
             for ingredient in issue["ingredients"]:
                 path = ingredient_path(engine, product, ingredient)
                 st.write(" → ".join(label(engine.graph, node) for node in path) if path else label(engine.graph, ingredient))
-else:
+elif page == "Supply chain explorer":
     st.header("Supply chain explorer")
     flagged = {ingredient for result in results.values() for issue in result["issues"]
                for ingredient in issue["ingredients"]}
@@ -136,3 +132,38 @@ else:
     st.write(f"**{label(engine.graph, node)}**")
     for predicate, value in sorted(engine.graph.predicate_objects(node), key=lambda pair: tuple(map(str, pair))):
         st.write(f"{label(engine.graph, predicate)}: {label(engine.graph, value)}")
+else:
+    st.header("Reformulation advisor")
+    st.caption("Role matches are provisional: Not assessed does not mean compliant. Simulation replaces every occurrence of the selected ingredient in this product.")
+    targets = st.multiselect("Target standards", STANDARDS, default=list(STANDARDS),
+                             format_func=lambda standard: label(engine.graph, standard))
+    flagged = sorted({ingredient for standard in targets for issue in results[standard]["issues"]
+                      for ingredient in issue["ingredients"]}, key=str)
+    if not targets:
+        st.info("Select at least one target standard.")
+    elif not flagged:
+        st.info("The current rules found no ingredients to replace for these targets.")
+    else:
+        original = st.selectbox("Flagged ingredient", flagged,
+                                format_func=lambda node: label(engine.graph, node))
+        matches = candidates(engine, original, targets)
+        if not matches:
+            st.info("No role matches without a known failure or audit were found.")
+        else:
+            st.write("Role matches with no known failure or audit:")
+            for alternative, statuses in matches:
+                st.write(f"{label(engine.graph, alternative)} — " + ", ".join(
+                    f"{label(engine.graph, standard)}: {status}" for standard, status in statuses.items()
+                ))
+            replacement = st.selectbox("Replacement", [item[0] for item in matches],
+                                       format_func=lambda node: label(engine.graph, node))
+            if st.button("Simulate reformulation"):
+                try:
+                    simulated = simulate(engine, product, original, replacement)
+                    st.subheader("Simulated product results")
+                    for standard in STANDARDS:
+                        st.write(f"{label(engine.graph, standard)}: {simulated[standard]['status']}")
+                        for issue in simulated[standard]["issues"]:
+                            st.write(f"• {issue['message']}")
+                except ValueError as exc:
+                    st.error(str(exc))

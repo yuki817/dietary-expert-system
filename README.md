@@ -2,9 +2,8 @@
 
 ## Run locally
 
-The application includes a provisional scorecard and supply chain explorer
-using sample data. The reformulation advisor is a placeholder. With Python 3.10
-or newer installed:
+The application includes a provisional scorecard, supply chain explorer, and
+reformulation advisor using sample data. With Python 3.10 or newer installed:
 
 ```sh
 python3 -m venv .venv
@@ -16,6 +15,11 @@ streamlit run app.py
 Open the local URL printed by Streamlit and select a use case in the sidebar.
 The sample graph and provisional rules do not provide a complete compliance
 assessment.
+
+The advisor shows ingredients with a matching functional role and no detected
+failure or audit for the selected standards. These are provisional matches,
+not verified compliant alternatives. Simulation replaces all occurrences of
+the selected ingredient in a graph copy and evaluates the whole product again.
 
 Use the sidebar to create one custom recipe for the current session. Add new
 ingredients (optionally with ethanol percentages) under the recipe or another

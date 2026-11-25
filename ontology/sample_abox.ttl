@@ -10,5 +10,10 @@ food:SampleDough a food:Ingredient ;
     food:containsIngredient food:SampleFlour, food:SampleAdditive .
 food:SampleFlour a food:Ingredient ; rdfs:label "Sample flour" .
 food:SampleAdditive a food:Ingredient ; rdfs:label "Sample additive" ;
+    food:hasFunctionalRole food:SampleRole ;
     food:derivedFrom food:SamplePorcineSource .
 food:SamplePorcineSource a food:Porcine ; rdfs:label "Sample porcine source" .
+food:SampleAlternative a food:Ingredient ; rdfs:label "Sample alternative" ;
+    food:hasFunctionalRole food:SampleRole ; food:derivedFrom food:SamplePlantSource .
+food:SamplePlantSource a food:PlantOrigin ; rdfs:label "Sample plant source" .
+food:SampleRole a food:FunctionalRole ; rdfs:label "Sample role" .
