@@ -1,6 +1,6 @@
 import unittest
 
-from rdflib import Graph, RDF
+from rdflib import Graph, Literal, RDF, RDFS
 
 from src.knowledge_engine import FOOD, KnowledgeEngine
 from src.recipes import RecipeBuilder
@@ -51,3 +51,39 @@ class RecipeTests(unittest.TestCase):
         self.assertIn((ing, FOOD.derivedFrom, FOOD.Src_Plant), builder.graph)
         self.assertIn((ing, FOOD.hasFunctionalRole, FOOD.GellingAgent), builder.graph)
         self.assertIn((ing, FOOD.hasCertificate, FOOD.HalalCert_01), builder.graph)
+
+    def test_add_product_and_standalone_labelled_ingredient(self):
+        self.source.add((FOOD.Src_Plant, RDF.type, FOOD.PlantOrigin))
+        self.source.add((FOOD.Byprod_Dairy, RDF.type, FOOD.Dairy))
+        self.source.add((FOOD.Emulsifier, RDF.type, FOOD.FunctionalRole))
+        self.source.add((FOOD.HalalCert_01, RDF.type, FOOD.HalalCert))
+
+        builder = RecipeBuilder(self.source)
+        ing = builder.add_ingredient(
+            None,
+            "Custom Lecithin Mix",
+            ethanol=0.0,
+            origins=[FOOD.Src_Plant, FOOD.Byprod_Dairy],
+            role=FOOD.Emulsifier,
+            certificates=[FOOD.HalalCert_01],
+            e_number="E322b",
+            comment="Custom compound emulsifier",
+            sub_ingredients=[FOOD.CatalogIngredient],
+        )
+        self.assertIn((ing, RDF.type, FOOD.Ingredient), builder.graph)
+        self.assertIn((ing, RDFS.label, Literal("Custom Lecithin Mix")), builder.graph)
+        self.assertIn((ing, FOOD.eNumber, Literal("E322b")), builder.graph)
+        self.assertIn((ing, RDFS.comment, Literal("Custom compound emulsifier")), builder.graph)
+        self.assertIn((ing, FOOD.derivedFrom, FOOD.Src_Plant), builder.graph)
+        self.assertIn((ing, FOOD.derivedFrom, FOOD.Byprod_Dairy), builder.graph)
+        self.assertIn((ing, FOOD.containsIngredient, FOOD.CatalogIngredient), builder.graph)
+
+        product = builder.add_product(
+            "Artisan Chocolate Bar",
+            ingredients=[ing],
+            comment="Dark chocolate bar with custom emulsifier",
+        )
+        self.assertIn((product, RDF.type, FOOD.FoodProduct), builder.graph)
+        self.assertIn((product, RDFS.label, Literal("Artisan Chocolate Bar")), builder.graph)
+        self.assertIn((product, RDFS.comment, Literal("Dark chocolate bar with custom emulsifier")), builder.graph)
+        self.assertIn((product, FOOD.containsIngredient, ing), builder.graph)
