@@ -2,11 +2,15 @@
 
 from pathlib import Path
 
-from rdflib import Graph, Namespace, RDF, URIRef
+from rdflib import Graph, Namespace, RDF, RDFS, URIRef
 from rdflib.exceptions import ParserError
 
 
 FOOD = Namespace("http://example.org/food-compliance#")
+RULES = Path(__file__).resolve().parent.parent / "rules"
+RULE_FILES = ("halal.sparql", "halal_audit.sparql", "kosher_porcine.sparql",
+              "kosher_meat_dairy.sparql", "vegetarian_vegan.sparql")
+STANDARDS = (FOOD.Halal, FOOD.Kosher, FOOD.Vegetarian, FOOD.Vegan)
 
 
 class KnowledgeGraphError(ValueError):
@@ -58,3 +62,35 @@ class KnowledgeEngine:
                 if child not in visited:
                     pending.append(child)
         return sorted(edges, key=lambda edge: (str(edge[0]), str(edge[1])))
+
+    def evaluate(self, product: URIRef) -> dict:
+        """Evaluate implemented rules; absence of findings is not yet a pass."""
+        if (product, RDF.type, FOOD.FoodProduct) not in self.graph:
+            raise ValueError(f"Not an explicitly typed food product: {product}")
+
+        inferred = Graph()
+        for name in RULE_FILES:
+            path = RULES / name
+            result = self.graph.query(path.read_text(encoding="utf-8"))
+            for triple in result.graph:
+                inferred.add(triple)
+
+        results = {}
+        for standard in STANDARDS:
+            if (product, FOOD.isNonCompliantWith, standard) in inferred:
+                status = "Fail"
+            elif (product, FOOD.requiresAuditFor, standard) in inferred:
+                status = "Audit Required"
+            else:
+                status = "Not assessed"
+            issues = []
+            for issue in sorted(inferred.objects(product, FOOD.hasIssue), key=str):
+                if (issue, FOOD.standard, standard) not in inferred:
+                    continue
+                issues.append({
+                    "id": issue,
+                    "message": str(inferred.value(issue, RDFS.label)),
+                    "ingredients": sorted(inferred.objects(issue, FOOD.flaggedIngredient), key=str),
+                })
+            results[standard] = {"status": status, "issues": issues}
+        return results

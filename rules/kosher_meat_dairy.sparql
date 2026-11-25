@@ -1,0 +1,19 @@
+PREFIX food: <http://example.org/food-compliance#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?product food:isNonCompliantWith food:Kosher ; food:hasIssue ?issue .
+  ?issue a food:ComplianceIssue ; food:standard food:Kosher ;
+    food:flaggedIngredient ?meat, ?dairy ; rdfs:label "Kosher violation: meat and dairy together." .
+}
+WHERE {
+  ?product a food:FoodProduct ; food:containsIngredient+ ?meat, ?dairy .
+  ?meat food:derivedFrom ?meatSource .
+  ?meatSource rdf:type/rdfs:subClassOf* ?meatType .
+  FILTER(?meatType IN (food:MeatTissue, food:Bovine, food:Poultry))
+  ?dairy food:derivedFrom ?dairySource .
+  ?dairySource rdf:type/rdfs:subClassOf* ?dairyType .
+  FILTER(?dairyType IN (food:Dairy, food:Whey, food:Casein))
+  BIND(IRI(CONCAT("http://example.org/issue/", SHA256(CONCAT(STR(?product), "|kosher-meat-dairy|", STR(?meat), "|", STR(?dairy))))) AS ?issue)
+}

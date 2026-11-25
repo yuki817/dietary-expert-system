@@ -1,0 +1,25 @@
+PREFIX food: <http://example.org/food-compliance#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?product food:isNonCompliantWith food:Halal ; food:hasIssue ?issue .
+  ?issue a food:ComplianceIssue ; food:standard food:Halal ;
+    food:flaggedIngredient ?ingredient ; rdfs:label ?message .
+}
+WHERE {
+  ?product a food:FoodProduct ; food:containsIngredient+ ?ingredient .
+  {
+    ?ingredient food:derivedFrom ?source .
+    ?source rdf:type/rdfs:subClassOf* ?kind .
+    FILTER(?kind IN (food:Porcine, food:Insect))
+    BIND(CONCAT("Forbidden Halal origin: ", STR(?kind)) AS ?message)
+    BIND(CONCAT("origin-", STR(?kind)) AS ?reason)
+  } UNION {
+    ?ingredient food:ethanolPercentage ?ethanol .
+    FILTER(?ethanol > 0.5)
+    BIND(CONCAT("Ethanol exceeds 0.5%: ", STR(?ethanol), "%") AS ?message)
+    BIND(CONCAT("ethanol-", STR(?ethanol)) AS ?reason)
+  }
+  BIND(IRI(CONCAT("http://example.org/issue/", SHA256(CONCAT(STR(?product), "|halal-fail|", STR(?ingredient), "|", ?reason)))) AS ?issue)
+}

@@ -2,8 +2,9 @@
 
 ## Run locally
 
-The application is currently a navigation skeleton; compliance evaluation and
-the knowledge graph are not implemented yet. With Python 3.10 or newer installed:
+The application is currently a navigation skeleton. The graph loader and
+provisional compliance rules are available in Python but are not yet connected
+to the UI. With Python 3.10 or newer installed:
 
 ```sh
 python3 -m venv .venv
@@ -21,7 +22,12 @@ view its placeholder page.
 fixtures, not the final ontology or benchmark data. `KnowledgeEngine.from_turtle`
 loads one or more Turtle files; its product and ingredient lists use explicit RDF
 types, and its traversal returns direct ingredient edges reachable from a root.
-It does not yet perform OWL inference or compliance evaluation.
+It does not perform general OWL inference. A provisional `evaluate` method runs
+the SPARQL rules in `rules/`, including explicit subclass paths for source and
+certificate types. It reports known failures and Halal audits, but returns
+`Not assessed` rather than Pass when no issue is found: certification validity,
+unknown data, marine sources, and other policy details remain to be agreed in
+`TEAM_DISCUSSION.md`. These results are not a complete compliance assessment.
 
 Run the graph checks with:
 

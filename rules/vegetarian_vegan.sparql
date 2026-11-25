@@ -1,0 +1,23 @@
+PREFIX food: <http://example.org/food-compliance#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?product food:isNonCompliantWith ?standard ; food:hasIssue ?issue .
+  ?issue a food:ComplianceIssue ; food:standard ?standard ;
+    food:flaggedIngredient ?ingredient ; rdfs:label ?message .
+}
+WHERE {
+  ?product a food:FoodProduct ; food:containsIngredient+ ?ingredient .
+  ?ingredient food:derivedFrom ?source .
+  ?source rdf:type/rdfs:subClassOf* ?kind .
+  {
+    VALUES ?kind { food:MeatTissue food:AnimalFat food:AnimalEnzyme }
+    VALUES ?standard { food:Vegetarian food:Vegan }
+  } UNION {
+    VALUES ?kind { food:AnimalByproduct food:Dairy food:Egg food:Honey }
+    BIND(food:Vegan AS ?standard)
+  }
+  BIND(CONCAT("Excluded dietary source: ", STR(?kind)) AS ?message)
+  BIND(IRI(CONCAT("http://example.org/issue/", SHA256(CONCAT(STR(?product), "|", STR(?standard), "|", STR(?ingredient), "|", STR(?kind))))) AS ?issue)
+}
