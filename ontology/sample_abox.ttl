@@ -1,0 +1,11 @@
+@prefix food: <http://example.org/food-compliance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+# Illustrative data only; not a compliance benchmark.
+food:SampleBread a food:FoodProduct ;
+    rdfs:label "Sample bread" ;
+    food:containsIngredient food:SampleDough .
+food:SampleDough a food:Ingredient ;
+    rdfs:label "Sample dough" ;
+    food:containsIngredient food:SampleFlour .
+food:SampleFlour a food:Ingredient ; rdfs:label "Sample flour" .

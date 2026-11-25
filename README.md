@@ -15,6 +15,20 @@ streamlit run app.py
 Open the local URL printed by Streamlit. Select a use case in the sidebar to
 view its placeholder page.
 
+### Knowledge graph development
+
+`ontology/sample_tbox.ttl` and `ontology/sample_abox.ttl` are small integration
+fixtures, not the final ontology or benchmark data. `KnowledgeEngine.from_turtle`
+loads one or more Turtle files; its product and ingredient lists use explicit RDF
+types, and its traversal returns direct ingredient edges reachable from a root.
+It does not yet perform OWL inference or compliance evaluation.
+
+Run the graph checks with:
+
+```sh
+python -m unittest discover -s tests
+```
+
 # **1\. Project Overview & Objectives**
 
 ## **1.1 System Name & Context**
