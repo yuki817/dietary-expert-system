@@ -13,16 +13,16 @@ class AppTests(unittest.TestCase):
     def test_sample_scorecard_explorer_and_simulation(self):
         app = AppTest.from_file(str(APP), default_timeout=30).run()
         self.assertFalse(app.exception)
-        self.assertEqual([item.value for item in app.error], ["Fail", "Fail"])
-        self.assertTrue(any("Sample additive" in item.value for item in app.markdown))
+        self.assertEqual([item.value for item in app.error], ["Fail"] * 4)
+        self.assertTrue(any("Porcine Gelatin" in item.value for item in app.markdown))
 
         app.sidebar.radio[0].set_value("Supply chain explorer").run()
         self.assertFalse(app.exception)
-        self.assertIn("Sample additive", app.selectbox[1].options)
+        self.assertIn("Porcine Gelatin", app.selectbox[1].options)
 
         app.sidebar.radio[0].set_value("Reformulation advisor").run()
         self.assertFalse(app.exception)
-        self.assertTrue(any("Sample alternative" in item.value for item in app.markdown))
+        self.assertTrue(any("Beetroot Red" in item.value for item in app.markdown))
         app.button[0].click().run()
         self.assertFalse(app.exception)
         self.assertTrue(any(item.value == "Simulated product results" for item in app.subheader))

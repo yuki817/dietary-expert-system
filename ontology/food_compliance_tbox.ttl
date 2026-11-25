@@ -1,0 +1,186 @@
+@prefix : <http://example.org/food-compliance#> .
+@prefix food: <http://example.org/food-compliance#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+<http://example.org/food-compliance> a owl:Ontology ;
+    rdfs:label "Multi-Standard Dietary & Supply Chain Compliance Ontology" ;
+    rdfs:comment "T-Box schema for auditing food products against Halal, Kosher, Vegetarian, and Vegan standards." .
+
+#################################################################
+#    Classes
+#################################################################
+
+food:FoodProduct a owl:Class ;
+    rdfs:label "Food Product" ;
+    rdfs:comment "Finished consumer food product composed of one or more ingredients." .
+
+food:Ingredient a owl:Class ;
+    rdfs:label "Ingredient" ;
+    rdfs:comment "Raw material, compound sub-ingredient, processing aid, or E-number food additive." .
+
+food:BiologicalOrigin a owl:Class ;
+    rdfs:label "Biological Origin" ;
+    rdfs:comment "Primary taxonomic source from which an ingredient is derived." .
+
+food:PlantOrigin a owl:Class ;
+    rdfs:subClassOf food:BiologicalOrigin ;
+    rdfs:label "Plant Origin" .
+
+food:AnimalOrigin a owl:Class ;
+    rdfs:subClassOf food:BiologicalOrigin ;
+    rdfs:label "Animal Origin" .
+
+food:Porcine a owl:Class ;
+    rdfs:subClassOf food:AnimalOrigin ;
+    rdfs:label "Porcine (Pig-derived)" .
+
+food:Bovine a owl:Class ;
+    rdfs:subClassOf food:AnimalOrigin ;
+    rdfs:label "Bovine (Cattle-derived)" .
+
+food:Poultry a owl:Class ;
+    rdfs:subClassOf food:AnimalOrigin ;
+    rdfs:label "Poultry (Avian-derived)" .
+
+food:Marine a owl:Class ;
+    rdfs:subClassOf food:AnimalOrigin ;
+    rdfs:label "Marine / Shellfish Origin" .
+
+food:Insect a owl:Class ;
+    rdfs:subClassOf food:AnimalOrigin ;
+    rdfs:label "Insect Origin" .
+
+food:MicrobialOrigin a owl:Class ;
+    rdfs:subClassOf food:BiologicalOrigin ;
+    rdfs:label "Microbial / Fermentation Origin" .
+
+food:SyntheticOrigin a owl:Class ;
+    rdfs:subClassOf food:BiologicalOrigin ;
+    rdfs:label "Synthetic / Chemical Origin" .
+
+food:AnimalByproduct a owl:Class ;
+    rdfs:label "Animal Byproduct or Derivative" ;
+    rdfs:comment "Specific tissue, secretion, or enzyme derived from animals." .
+
+food:MeatTissue a owl:Class ;
+    rdfs:subClassOf food:AnimalByproduct ;
+    rdfs:label "Meat Tissue" .
+
+food:AnimalFat a owl:Class ;
+    rdfs:subClassOf food:AnimalByproduct ;
+    rdfs:label "Animal Fat / Tallow / Lard" .
+
+food:AnimalEnzyme a owl:Class ;
+    rdfs:subClassOf food:AnimalByproduct ;
+    rdfs:label "Slaughter-Derived Animal Enzyme" .
+
+food:Dairy a owl:Class ;
+    rdfs:subClassOf food:AnimalByproduct ;
+    rdfs:label "Dairy Derivative" .
+
+food:Egg a owl:Class ;
+    rdfs:subClassOf food:AnimalByproduct ;
+    rdfs:label "Egg Derivative" .
+
+food:Honey a owl:Class ;
+    rdfs:subClassOf food:AnimalByproduct ;
+    rdfs:label "Honey / Bee Product" .
+
+food:Certificate a owl:Class ;
+    rdfs:label "Compliance Certificate" ;
+    rdfs:comment "Third-party certification verifying religious or dietary compliance." .
+
+food:HalalCert a owl:Class ;
+    rdfs:subClassOf food:Certificate ;
+    rdfs:label "Halal Certificate" .
+
+food:KosherCert a owl:Class ;
+    rdfs:subClassOf food:Certificate ;
+    rdfs:label "Kosher Certificate" .
+
+food:DietaryStandard a owl:Class ;
+    rdfs:label "Dietary Standard" ;
+    rdfs:comment "Target regulatory or ethical dietary framework." .
+
+food:FunctionalRole a owl:Class ;
+    rdfs:label "Functional Role" ;
+    rdfs:comment "Technological or culinary function of an ingredient (Codex GSFA functional class)." .
+
+food:ComplianceIssue a owl:Class ;
+    rdfs:label "Compliance Issue" ;
+    rdfs:comment "Inferred diagnostic node explaining a compliance violation or audit requirement." .
+
+#################################################################
+#    Object Properties
+#################################################################
+
+food:containsIngredient a owl:ObjectProperty, owl:TransitiveProperty ;
+    rdfs:label "contains ingredient" ;
+    rdfs:comment "Transitive BOM relationship linking a product or compound ingredient to its sub-ingredients." ;
+    rdfs:range food:Ingredient .
+
+food:derivedFrom a owl:ObjectProperty ;
+    rdfs:label "derived from" ;
+    rdfs:domain food:Ingredient .
+
+food:hasCertificate a owl:ObjectProperty ;
+    rdfs:label "has certificate" ;
+    rdfs:domain food:Ingredient ;
+    rdfs:range food:Certificate .
+
+food:hasFunctionalRole a owl:ObjectProperty ;
+    rdfs:label "has functional role" ;
+    rdfs:domain food:Ingredient ;
+    rdfs:range food:FunctionalRole .
+
+food:isCompliantWith a owl:ObjectProperty ;
+    rdfs:label "is compliant with" ;
+    rdfs:domain food:FoodProduct ;
+    rdfs:range food:DietaryStandard .
+
+food:isNonCompliantWith a owl:ObjectProperty ;
+    rdfs:label "is non-compliant with" ;
+    rdfs:domain food:FoodProduct ;
+    rdfs:range food:DietaryStandard .
+
+food:requiresAuditFor a owl:ObjectProperty ;
+    rdfs:label "requires audit for" ;
+    rdfs:domain food:FoodProduct ;
+    rdfs:range food:DietaryStandard .
+
+food:hasIssue a owl:ObjectProperty ;
+    rdfs:label "has compliance issue" ;
+    rdfs:domain food:FoodProduct ;
+    rdfs:range food:ComplianceIssue .
+
+food:flaggedIngredient a owl:ObjectProperty ;
+    rdfs:label "flagged ingredient" ;
+    rdfs:domain food:ComplianceIssue ;
+    rdfs:range food:Ingredient .
+
+food:forStandard a owl:ObjectProperty ;
+    rdfs:label "for standard" ;
+    rdfs:domain food:ComplianceIssue ;
+    rdfs:range food:DietaryStandard .
+
+food:hasSuggestedSubstitute a owl:ObjectProperty ;
+    rdfs:label "has suggested substitute" ;
+    rdfs:domain food:Ingredient ;
+    rdfs:range food:Ingredient .
+
+#################################################################
+#    Data Properties
+#################################################################
+
+food:ethanolPercentage a owl:DatatypeProperty ;
+    rdfs:label "ethanol percentage (% v/v)" ;
+    rdfs:domain food:Ingredient ;
+    rdfs:range xsd:float .
+
+food:eNumber a owl:DatatypeProperty ;
+    rdfs:label "INS / E-Number" ;
+    rdfs:domain food:Ingredient ;
+    rdfs:range xsd:string .

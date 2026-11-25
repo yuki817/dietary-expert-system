@@ -4,7 +4,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 
 CONSTRUCT {
   ?product food:isNonCompliantWith ?standard ; food:hasIssue ?issue .
-  ?issue a food:ComplianceIssue ; food:standard ?standard ;
+  ?issue a food:ComplianceIssue ; food:forStandard ?standard ; food:standard ?standard ;
     food:flaggedIngredient ?ingredient ; rdfs:label ?message .
 }
 WHERE {

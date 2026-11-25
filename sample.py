@@ -12,9 +12,8 @@ FOOD = Namespace("http://example.org/food-compliance#")
 def load_base_graph():
     root = Path(__file__).resolve().parent
     return KnowledgeEngine.from_turtle(
-        root / "ontology/sample_tbox.ttl",
-        root / "ontology/sample_abox.ttl",
-        root / "ontology/demo_abox.ttl",
+        root / "ontology/food_compliance_tbox.ttl",
+        root / "ontology/food_compliance_abox.ttl",
     ).graph
 
 def run_inference(base_graph, target_product_uri):
@@ -35,7 +34,7 @@ def run_inference(base_graph, target_product_uri):
 
 # --- UI LAYOUT ---
 st.title("🥗 Multi-Standard Dietary & Supply Chain Compliance Expert System")
-st.caption("Sample page using illustrative data and provisional rules. Not assessed does not mean compliant.")
+st.caption("Sample page using provided product data and provisional rules. Not assessed does not mean compliant.")
 tab1, tab2, tab3 = st.tabs([
     "1. Compliance Matrix & Audit",
     "2. Supply Chain Traceability",

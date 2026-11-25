@@ -95,7 +95,7 @@ class DietaryReasoner:
                     enriched.add((product, FOOD.requiresAuditFor, standard))
                     enriched.add((product, FOOD.hasIssue, issue))
                     enriched.add((issue, RDF.type, FOOD.ComplianceIssue))
-                    enriched.add((issue, FOOD.standard, standard))
+                    enriched.add((issue, FOOD.forStandard, standard))
                     enriched.add((issue, RDFS.label, Literal("Audit required: product has no declared ingredients.")))
             elif missing_leaves:
                 for leaf in missing_leaves:
@@ -105,7 +105,7 @@ class DietaryReasoner:
                         enriched.add((product, FOOD.requiresAuditFor, standard))
                         enriched.add((product, FOOD.hasIssue, issue))
                         enriched.add((issue, RDF.type, FOOD.ComplianceIssue))
-                        enriched.add((issue, FOOD.standard, standard))
+                        enriched.add((issue, FOOD.forStandard, standard))
                         enriched.add((issue, FOOD.flaggedIngredient, leaf))
                         enriched.add(
                             (issue, RDFS.label, Literal(f"Audit required: missing biological origin for {leaf}."))
@@ -138,7 +138,7 @@ class DietaryReasoner:
 
             issues = []
             for issue in sorted(enriched.objects(product, FOOD.hasIssue), key=str):
-                if (issue, FOOD.standard, standard) not in enriched:
+                if (issue, FOOD.forStandard, standard) not in enriched and (issue, FOOD.standard, standard) not in enriched:
                     continue
                 issues.append({
                     "id": issue,

@@ -13,7 +13,7 @@ ROOT = Path(__file__).resolve().parents[1]
 class KnowledgeEngineTests(unittest.TestCase):
     def test_loads_sample_and_returns_nested_direct_edges(self):
         engine = KnowledgeEngine.from_turtle(
-            ROOT / "ontology/sample_tbox.ttl", ROOT / "ontology/sample_abox.ttl"
+            ROOT / "tests/fixtures/sample_tbox.ttl", ROOT / "tests/fixtures/sample_abox.ttl"
         )
         self.assertEqual(engine.products(), [FOOD.SampleBread])
         self.assertEqual(engine.ingredients(), [FOOD.SampleAdditive, FOOD.SampleAlternative,

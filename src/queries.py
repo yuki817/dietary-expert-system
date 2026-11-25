@@ -26,7 +26,7 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 SELECT ?issue ?standard ?message ?ingredient
 WHERE {
   ?product food:hasIssue ?issue .
-  ?issue food:standard ?standard ;
+  ?issue (food:forStandard|food:standard) ?standard ;
          rdfs:label ?message .
   OPTIONAL { ?issue food:flaggedIngredient ?ingredient . }
 }
