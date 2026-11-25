@@ -47,6 +47,23 @@ Run the graph checks with:
 python -m unittest discover -s tests
 ```
 
+See [VALIDATION.md](VALIDATION.md) for sample checks and the remaining work
+before benchmark acceptance.
+
+### Deploy to Streamlit Community Cloud
+
+1. Push the reviewed project files to a GitHub repository accessible to your
+   Streamlit Community Cloud account.
+2. In [Streamlit Community Cloud](https://share.streamlit.io/), create an app
+   from the existing repository and select the desired branch and `app.py` as
+   the entry point. Choose a Python version compatible with your tested setup.
+3. Deploy, inspect the build logs, and check the three workflows at the app URL.
+   The root `requirements.txt` supplies the Python dependencies.
+
+The current application uses sample data and provisional rules. Deployment is
+not final acceptance; complete the checks in `VALIDATION.md` first. See the
+[Streamlit deployment guide](https://docs.streamlit.io/deploy/streamlit-community-cloud/deploy-your-app/deploy).
+
 # **1\. Project Overview & Objectives**
 
 ## **1.1 System Name & Context**
