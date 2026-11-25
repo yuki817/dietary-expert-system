@@ -1,5 +1,20 @@
 # **Project Requirements & Specification: Multi-Standard Dietary & Supply Chain Compliance Expert System**
 
+## Run locally
+
+The application is currently a navigation skeleton; compliance evaluation and
+the knowledge graph are not implemented yet. With Python 3.10 or newer installed:
+
+```sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -r requirements.txt
+streamlit run app.py
+```
+
+Open the local URL printed by Streamlit. Select a use case in the sidebar to
+view its placeholder page.
+
 # **1\. Project Overview & Objectives**
 
 ## **1.1 System Name & Context**
