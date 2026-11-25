@@ -1,0 +1,44 @@
+PREFIX food: <http://example.org/food-compliance#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?product food:isNonCompliantWith food:Kosher ; food:hasIssue ?issue .
+  ?issue a food:ComplianceIssue ; food:standard food:Kosher ;
+    food:flaggedIngredient ?flagged1, ?flagged2 ; rdfs:label ?message .
+}
+WHERE {
+  ?product a food:FoodProduct .
+  {
+    ?product food:containsIngredient+ ?flagged1 .
+    BIND(?flagged1 AS ?flagged2)
+    ?flagged1 food:derivedFrom ?source .
+    ?source rdf:type/rdfs:subClassOf* ?kind .
+    FILTER(?kind IN (food:Porcine, food:Marine, food:Insect))
+    BIND(CONCAT("Kosher violation (Treif): forbidden origin ", STR(?kind)) AS ?message)
+    BIND(CONCAT("treif-", STR(?flagged1), "-", STR(?kind)) AS ?key)
+  } UNION {
+    ?product food:containsIngredient+ ?flagged1 .
+    BIND(?flagged1 AS ?flagged2)
+    ?flagged1 food:derivedFrom ?source .
+    ?source rdf:type/rdfs:subClassOf* ?kind .
+    FILTER(?kind IN (food:AnimalOrigin, food:Bovine, food:Poultry, food:AnimalFat, food:AnimalEnzyme, food:MeatTissue))
+    FILTER NOT EXISTS {
+      ?flagged1 food:hasCertificate ?cert .
+      ?cert rdf:type/rdfs:subClassOf* food:KosherCert .
+    }
+    BIND(CONCAT("Kosher violation: missing Kosher certification on animal derivative ", STR(?flagged1)) AS ?message)
+    BIND(CONCAT("uncert-", STR(?flagged1)) AS ?key)
+  } UNION {
+    ?product food:containsIngredient+ ?flagged1, ?flagged2 .
+    ?flagged1 food:derivedFrom ?meatSource .
+    ?meatSource rdf:type/rdfs:subClassOf* ?meatType .
+    FILTER(?meatType IN (food:MeatTissue, food:Bovine, food:Poultry))
+    ?flagged2 food:derivedFrom ?dairySource .
+    ?dairySource rdf:type/rdfs:subClassOf* ?dairyType .
+    FILTER(?dairyType IN (food:Dairy, food:Whey, food:Casein, food:Cheese))
+    BIND("Kosher violation: Mixing meat and dairy derivatives (Basar BeChalav)." AS ?message)
+    BIND(CONCAT("meat-dairy-", STR(?flagged1), "-", STR(?flagged2)) AS ?key)
+  }
+  BIND(IRI(CONCAT("http://example.org/issue/", SHA256(CONCAT(STR(?product), "|kosher|", ?key)))) AS ?issue)
+}

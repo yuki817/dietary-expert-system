@@ -1,0 +1,30 @@
+PREFIX food: <http://example.org/food-compliance#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+
+CONSTRUCT {
+  ?flaggedIng food:hasSuggestedSubstitute ?substitute .
+}
+WHERE {
+  ?flaggedIng a food:Ingredient ; food:hasFunctionalRole ?role .
+  ?substitute a food:Ingredient ; food:hasFunctionalRole ?role .
+  FILTER(?flaggedIng != ?substitute)
+
+  ?substitute food:derivedFrom ?subSource .
+  ?subSource rdf:type/rdfs:subClassOf* ?subSourceType .
+  FILTER(?subSourceType IN (food:PlantOrigin, food:MicrobialOrigin, food:SyntheticOrigin))
+
+  FILTER NOT EXISTS {
+    ?substitute food:derivedFrom ?badSource .
+    ?badSource rdf:type/rdfs:subClassOf* ?badType .
+    FILTER(?badType IN (
+      food:AnimalOrigin, food:Porcine, food:Bovine, food:Poultry, food:Marine, food:Insect,
+      food:AnimalByproduct, food:MeatTissue, food:AnimalFat, food:AnimalEnzyme,
+      food:Dairy, food:Whey, food:Casein, food:Cheese, food:Egg, food:Honey
+    ))
+  }
+  FILTER NOT EXISTS {
+    ?substitute food:ethanolPercentage ?alc .
+    FILTER(?alc > 0.5)
+  }
+}
