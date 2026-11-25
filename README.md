@@ -3,7 +3,7 @@
 ## Run locally
 
 The application includes a provisional scorecard, supply chain explorer, and
-reformulation advisor using sample data. With Python 3.10 or newer installed:
+reformulation advisor using fictional sample and demo data. With Python 3.10 or newer installed:
 
 ```sh
 python3 -m venv .venv
@@ -30,8 +30,13 @@ have an origin by default, so their absence of findings is not a Pass.
 
 ### Knowledge graph development
 
-`ontology/sample_tbox.ttl` and `ontology/sample_abox.ttl` are small integration
-fixtures, not the final ontology or benchmark data. `KnowledgeEngine.from_turtle`
+`ontology/sample_tbox.ttl`, `ontology/sample_abox.ttl`, and
+`ontology/demo_abox.ttl` are integration fixtures, not the final ontology or
+benchmark data. The app includes six illustrative products: sample bread and
+demo candy, beef snack, burger, pastry, and plant snack. They exercise nested
+porcine ingredients, a Halal audit, meat and dairy, ethanol, and a case with no
+current findings. `Not assessed` does not mean the product passes a standard.
+`KnowledgeEngine.from_turtle`
 loads one or more Turtle files; its product and ingredient lists use explicit RDF
 types, and its traversal returns direct ingredient edges reachable from a root.
 It does not perform general OWL inference. A provisional `evaluate` method runs

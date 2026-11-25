@@ -1,8 +1,8 @@
 # Validation and remaining acceptance work
 
-The shipped graph is an illustrative integration fixture, not the six-product
+The shipped graph contains fictional demonstration products, not the six-product
 benchmark dataset. The dietary rules are provisional and `Not assessed` is not
-a Pass. Do not use the sample results as an actual compliance determination.
+a Pass. Do not use the demo results as an actual compliance determination.
 
 ## Checks available now
 
@@ -22,7 +22,7 @@ not end-to-end UI timings or performance results for the final dataset.
 - [ ] Resolve the policy questions in `TEAM_DISCUSSION.md` and update the
   specification, rules, ontology, and expected results together.
 - [ ] Integrate the team's final T-Box and A-Box; the app currently loads the
-  two `ontology/sample_*.ttl` files explicitly.
+  two `ontology/sample_*.ttl` files and `ontology/demo_abox.ttl` explicitly.
 - [ ] Verify the six benchmark products against the agreed matrix and add
   regression tests for every standard and expected issue.
 - [ ] Establish when a Pass is justified, including handling of missing data,

@@ -1,0 +1,47 @@
+@prefix food: <http://example.org/food-compliance#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+
+# Fictional test data. These examples are not certified products or benchmarks.
+
+food:DemoCandy a food:FoodProduct ; rdfs:label "Demo candy — nested porcine gelatin" ;
+    food:containsIngredient food:DemoCandyMix .
+food:DemoCandyMix a food:Ingredient ; rdfs:label "Candy mix" ;
+    food:containsIngredient food:DemoGelBase .
+food:DemoGelBase a food:Ingredient ; rdfs:label "Gel base" ;
+    food:containsIngredient food:DemoPorkGelatin .
+food:DemoPorkGelatin a food:Ingredient ; rdfs:label "Porcine gelatin" ;
+    food:derivedFrom food:DemoPorkSource ; food:hasFunctionalRole food:DemoGellingRole .
+food:DemoPorkSource a food:Porcine ; rdfs:label "Porcine source" .
+food:DemoAgar a food:Ingredient ; rdfs:label "Agar alternative" ;
+    food:derivedFrom food:DemoPlantSource ; food:hasFunctionalRole food:DemoGellingRole .
+food:DemoGellingRole a food:FunctionalRole ; rdfs:label "Gelling agent" .
+food:DemoPlantSource a food:PlantOrigin ; rdfs:label "Plant source" .
+
+food:DemoBeefProduct a food:FoodProduct ; rdfs:label "Demo beef snack — audit" ;
+    food:containsIngredient food:DemoUncertifiedBeef .
+food:DemoUncertifiedBeef a food:Ingredient ; rdfs:label "Uncertified beef" ;
+    food:derivedFrom food:DemoBovineSource .
+food:DemoBovineSource a food:Bovine, food:MeatTissue ; rdfs:label "Bovine meat source" .
+
+food:DemoCheeseburger a food:FoodProduct ; rdfs:label "Demo burger — meat and dairy" ;
+    food:containsIngredient food:DemoCertifiedBeef, food:DemoCheese .
+food:DemoCertifiedBeef a food:Ingredient ; rdfs:label "Beef with example Halal certificate" ;
+    food:derivedFrom food:DemoBovineSource ; food:hasCertificate food:DemoHalalCertificate .
+food:DemoHalalCertificate a food:HalalCert ; rdfs:label "Example Halal certificate" .
+food:DemoCheese a food:Ingredient ; rdfs:label "Cheese" ; food:derivedFrom food:DemoDairySource .
+food:DemoDairySource a food:Dairy ; rdfs:label "Dairy source" .
+
+food:DemoPastry a food:FoodProduct ; rdfs:label "Demo pastry — ethanol" ;
+    food:containsIngredient food:DemoExtract .
+food:DemoExtract a food:Ingredient ; rdfs:label "Vanilla extract, 1.2% ethanol" ;
+    food:derivedFrom food:DemoPlantSource ; food:ethanolPercentage "1.2"^^xsd:decimal ;
+    food:hasFunctionalRole food:DemoFlavorRole .
+food:DemoFlavorAlternative a food:Ingredient ; rdfs:label "Alcohol-free flavor alternative" ;
+    food:derivedFrom food:DemoPlantSource ; food:ethanolPercentage "0"^^xsd:decimal ;
+    food:hasFunctionalRole food:DemoFlavorRole .
+food:DemoFlavorRole a food:FunctionalRole ; rdfs:label "Flavoring" .
+
+food:DemoPlantProduct a food:FoodProduct ; rdfs:label "Demo plant snack — no findings" ;
+    food:containsIngredient food:DemoGrain .
+food:DemoGrain a food:Ingredient ; rdfs:label "Plant grain" ; food:derivedFrom food:DemoPlantSource .

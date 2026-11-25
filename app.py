@@ -29,7 +29,8 @@ page = st.sidebar.radio(
 
 try:
     base_engine = KnowledgeEngine.from_turtle(
-        ROOT / "ontology/sample_tbox.ttl", ROOT / "ontology/sample_abox.ttl"
+        ROOT / "ontology/sample_tbox.ttl", ROOT / "ontology/sample_abox.ttl",
+        ROOT / "ontology/demo_abox.ttl",
     )
 except KnowledgeGraphError as exc:
     st.error(str(exc))
@@ -84,7 +85,8 @@ if not products:
     st.stop()
 
 st.caption("Illustrative sample data and provisional rules; not a complete compliance assessment.")
-default_product = products.index(st.session_state.recipe.product) if st.session_state.recipe else 0
+default_choice = st.session_state.recipe.product if st.session_state.recipe else FOOD.SampleBread
+default_product = products.index(default_choice) if default_choice in products else 0
 product = st.selectbox("Product", products, index=default_product,
                        format_func=lambda node: label(engine.graph, node))
 results = engine.evaluate(product)
