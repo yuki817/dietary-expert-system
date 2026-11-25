@@ -17,6 +17,13 @@ Open the local URL printed by Streamlit and select a use case in the sidebar.
 The sample graph and provisional rules do not provide a complete compliance
 assessment.
 
+Use the sidebar to create one custom recipe for the current session. Add new
+ingredients (optionally with ethanol percentages) under the recipe or another
+custom ingredient, or link existing ingredients. The recipe can then be selected
+in the scorecard and explorer. Its graph is isolated from the sample files;
+discarding the recipe or ending the session removes it. New ingredients do not
+have an origin by default, so their absence of findings is not a Pass.
+
 ### Knowledge graph development
 
 `ontology/sample_tbox.ttl` and `ontology/sample_abox.ttl` are small integration
