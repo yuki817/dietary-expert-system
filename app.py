@@ -21,16 +21,15 @@ RecipeBuilder = _recipes_mod.RecipeBuilder
 ROOT = Path(__file__).resolve().parent
 
 MENU_PAGES = (
-    "📊 Dashboard",
-    "➕ New Product",
-    "🧪 New Ingredient",
-    "🛠️ Tools & Export",
-    "⚙️ Settings",
+    "Dashboard",
+    "New Product",
+    "New Ingredient",
+    "Tools & Export",
+    "Settings",
 )
 
-# High-contrast node palettes tailored for Light (Day) and Dark (Night) themes
 THEME_PALETTES = {
-    "🌙 Dark (Night)": {
+    "Dark": {
         "bg": "#0f172a",
         "surface": "#1e293b",
         "card_bg": "#1e293b",
@@ -51,7 +50,7 @@ THEME_PALETTES = {
             "certificate": "#16a34a",
         },
     },
-    "🌞 Light (Day)": {
+    "Light": {
         "bg": "#f8fafc",
         "surface": "#ffffff",
         "card_bg": "#ffffff",
@@ -83,6 +82,10 @@ FONT_SIZES = {
 
 
 def _apply_theme_and_typography(theme_key: str, font_label: str) -> dict:
+    if theme_key not in THEME_PALETTES:
+        theme_key = "Dark"
+    if font_label not in FONT_SIZES:
+        font_label = "Medium (16px)"
     palette = THEME_PALETTES[theme_key]
     base_px = FONT_SIZES[font_label]
     h1_px = int(base_px * 1.95)
@@ -142,7 +145,6 @@ def _apply_theme_and_typography(theme_key: str, font_label: str) -> dict:
             font-size: {small_px}px !important;
             color: var(--app-muted) !important;
         }}
-        /* Selects, inputs, forms, and expanders */
         [data-testid="stForm"], [data-testid="stExpander"] {{
             background-color: var(--app-surface) !important;
             border: 1px solid var(--app-border) !important;
@@ -156,7 +158,6 @@ def _apply_theme_and_typography(theme_key: str, font_label: str) -> dict:
             border-color: var(--app-border) !important;
             font-size: {base_px}px !important;
         }}
-        /* Tabs bar styling */
         button[data-baseweb="tab"] {{
             font-size: {base_px}px !important;
             font-weight: 600 !important;
@@ -167,7 +168,6 @@ def _apply_theme_and_typography(theme_key: str, font_label: str) -> dict:
             color: var(--app-accent) !important;
             border-bottom-color: var(--app-accent) !important;
         }}
-        /* Custom KPI & metadata cards */
         .kg-banner {{
             background: var(--app-surface);
             border: 1px solid var(--app-border);
@@ -233,7 +233,7 @@ def _build_catalog_rows(engine: KnowledgeEngine) -> list[dict]:
         eth_str = f"{float(eth):.1f}%" if eth is not None else "0.0%"
         origins_str = (
             ", ".join(label(engine.graph, o) for o in engine.graph.objects(ing, FOOD.derivedFrom))
-            or "Compound / Unspecified"
+            or "Unspecified"
         )
         roles_str = ", ".join(label(engine.graph, r) for r in engine.graph.objects(ing, FOOD.hasFunctionalRole)) or "—"
         certs_str = ", ".join(label(engine.graph, c) for c in engine.graph.objects(ing, FOOD.hasCertificate)) or "None"
@@ -244,18 +244,17 @@ def _build_catalog_rows(engine: KnowledgeEngine) -> list[dict]:
         rows.append({
             "Ingredient": label(engine.graph, ing),
             "E-Number": e_num,
-            "Biological / Byproduct Origin": origins_str,
-            "Functional Role": roles_str,
+            "Origin": origins_str,
+            "Role": roles_str,
             "Ethanol %": eth_str,
             "Certificates": certs_str,
-            "Sub-Ingredients": subs_str,
+            "Sub-ingredients": subs_str,
         })
     return rows
 
 
 st.set_page_config(
-    page_title="Food Compliance Expert System",
-    page_icon="🍽️",
+    page_title="Dietary Compliance",
     layout="wide",
     initial_sidebar_state="expanded",
 )
@@ -281,9 +280,9 @@ else:
             st.session_state.recipe.graph.add(_triple)
 if "selected_product" not in st.session_state:
     st.session_state.selected_product = FOOD.StrawberryGummyCandy
-if "theme_choice" not in st.session_state:
-    st.session_state.theme_choice = "🌙 Dark (Night)"
-if "font_choice" not in st.session_state:
+if "theme_choice" not in st.session_state or st.session_state.theme_choice not in THEME_PALETTES:
+    st.session_state.theme_choice = "Dark"
+if "font_choice" not in st.session_state or st.session_state.font_choice not in FONT_SIZES:
     st.session_state.font_choice = "Medium (16px)"
 
 recipe: RecipeBuilder = st.session_state.recipe
@@ -292,10 +291,9 @@ reasoner = DietaryReasoner(engine.graph)
 products = engine.products()
 
 # =====================================================================
-# SIDEBAR: Clean Menu Navigation & Live Knowledge Graph Summary
+# SIDEBAR
 # =====================================================================
-st.sidebar.markdown("### 🍽️ Dietary Expert System")
-st.sidebar.caption("Unified Multi-Standard Compliance Workspace")
+st.sidebar.markdown("### Dietary Compliance")
 active_page = st.sidebar.radio("Menu", MENU_PAGES)
 
 palette = _apply_theme_and_typography(st.session_state.theme_choice, st.session_state.font_choice)
@@ -303,23 +301,20 @@ node_font_px = FONT_SIZES[st.session_state.font_choice]
 
 st.sidebar.divider()
 st.sidebar.caption(
-    f"**Products:** {len(products)} · **Ingredients:** {len(engine.ingredients())} · **Triples:** {len(engine.graph)}"
+    f"Products: {len(products)} · Ingredients: {len(engine.ingredients())} · Triples: {len(engine.graph)}"
 )
 if recipe.owned:
-    st.sidebar.info(f"Custom session items: **{len(recipe.owned)}**")
+    st.sidebar.info(f"Custom items: {len(recipe.owned)}")
 
 # =====================================================================
-# PAGE 1: UNIFIED COMPLIANCE DASHBOARD
+# PAGE 1: DASHBOARD
 # =====================================================================
-if active_page == "📊 Dashboard":
-    st.title("🍽️ Multi-Standard Dietary & Supply Chain Compliance Expert System")
-    st.caption(
-        "Semantic Web Knowledge Graph & Declarative SPARQL CONSTRUCT Reasoning Engine "
-        "— Auditing Halal, Kosher, Vegetarian, and Vegan Supply Chains"
-    )
+if active_page == "Dashboard":
+    st.title("Dietary Compliance Dashboard")
+    st.caption("Check product ingredients against Halal, Kosher, Vegetarian, and Vegan rules.")
 
     if not products:
-        st.warning("No products were found in the knowledge graph.")
+        st.warning("No products found in the graph.")
         st.stop()
 
     default_choice = (
@@ -351,28 +346,28 @@ if active_page == "📊 Dashboard":
     }
 
     with top_col2:
-        pills_html = "".join(f'<span class="kg-pill">{name}</span>' for name in direct_ings) or "<em>None declared</em>"
+        pills_html = "".join(f'<span class="kg-pill">{name}</span>' for name in direct_ings) or "<em>None</em>"
         st.markdown(
             f"""
             <div class="kg-banner">
-                <strong>Selected Product:</strong> {label(engine.graph, product)}<br/>
-                <strong>Direct Ingredients ({len(direct_ings)}):</strong> {pills_html}<br/>
-                <small>Total Transitive Sub-Ingredients: <strong>{len(reachable_ings)}</strong> ·
-                Flagged Ingredients: <strong>{len(flagged_all)}</strong></small>
+                <strong>Product:</strong> {label(engine.graph, product)}<br/>
+                <strong>Direct ingredients ({len(direct_ings)}):</strong> {pills_html}<br/>
+                <small>Sub-ingredients: <strong>{len(reachable_ings)}</strong> ·
+                Flagged: <strong>{len(flagged_all)}</strong></small>
             </div>
             """,
             unsafe_allow_html=True,
         )
 
     tab_scorecard, tab_explorer, tab_reformulate, tab_catalog = st.tabs([
-        "📊 1. Compliance Scorecard & Audit",
-        "🔗 2. Supply Chain Traceability Explorer",
-        "🧪 3. Reformulation Advisor & Simulator",
-        "📚 4. Ontology Ingredient Catalog",
+        "Scorecard",
+        "Supply Chain",
+        "Reformulation",
+        "Ingredients",
     ])
 
     with tab_scorecard:
-        st.header("Compliance scorecard")
+        st.subheader("Scorecard")
         columns = st.columns(len(STANDARDS))
         for column, standard in zip(columns, STANDARDS):
             result = results[standard]
@@ -380,10 +375,10 @@ if active_page == "📊 Dashboard":
                 st.subheader(label(engine.graph, standard))
                 _render_status_badge(result["status"])
 
-        st.subheader("Findings")
+        st.subheader("Issues")
         issues = [(standard, issue) for standard in STANDARDS for issue in results[standard]["issues"]]
         if not issues:
-            st.write("All ingredients and biological origins verified compliant with zero violations.")
+            st.write("No compliance issues found.")
         for standard, issue in issues:
             with st.expander(f"{label(engine.graph, standard)}: {issue['message']}", expanded=True):
                 for ingredient in issue["ingredients"]:
@@ -395,13 +390,10 @@ if active_page == "📊 Dashboard":
                     )
 
     with tab_explorer:
-        st.header("Supply chain explorer")
+        st.subheader("Supply chain graph")
         nodes, edges = graph_data(engine, product, flagged_all)
         levels = node_level(product, nodes, edges)
-        st.caption(
-            "🔵 **Blue**: Product · 🟠 **Amber**: Ingredient · 🔴 **Red**: Flagged Ingredient · "
-            "⚪ **Slate**: Biological Origin · 🟢 **Green**: Certificate"
-        )
+        st.caption("Blue: Product · Amber: Ingredient · Red: Flagged · Slate: Origin · Green: Certificate")
         graph_col, detail_col = st.columns([2.2, 1])
         with graph_col:
             selected = agraph(
@@ -468,15 +460,15 @@ if active_page == "📊 Dashboard":
             st.markdown(f"#### {label(engine.graph, node)} (`{node_kind}`)")
             e_num = engine.graph.value(node, FOOD.eNumber)
             if e_num:
-                st.caption(f"INS / E-Number: {e_num}")
+                st.caption(f"E-Number: {e_num}")
             for predicate, value in sorted(engine.graph.predicate_objects(node), key=lambda pair: tuple(map(str, pair))):
                 if predicate == RDFS.label:
                     continue
                 st.write(f"**{label(engine.graph, predicate)}:** {label(engine.graph, value)}")
 
     with tab_reformulate:
-        st.header("Reformulation advisor")
-        st.caption("Matches share the same functional role and satisfy all target dietary standards.")
+        st.subheader("Reformulation")
+        st.caption("Substitutes share the same functional role and pass all selected standards.")
         targets = st.multiselect(
             "Target standards",
             STANDARDS,
@@ -495,7 +487,7 @@ if active_page == "📊 Dashboard":
         if not targets:
             st.info("Select at least one target standard.")
         elif not flagged:
-            st.info("This product already passes all selected target standards.")
+            st.info("This product passes all selected standards.")
         else:
             enriched_graph = reasoner.materialize()
             original = st.selectbox(
@@ -508,9 +500,9 @@ if active_page == "📊 Dashboard":
                 engine, original, targets
             )
             if not matches:
-                st.info("No role matches without a known failure or audit were found.")
+                st.info("No matching substitutes found.")
             else:
-                st.write("Recommended functional role substitutes:")
+                st.write("Available substitutes:")
                 for alternative, statuses in matches:
                     st.write(
                         f"{label(engine.graph, alternative)} — "
@@ -536,9 +528,7 @@ if active_page == "📊 Dashboard":
                 with btn_col1:
                     run_single = st.button("Simulate reformulation")
                 with btn_col2:
-                    run_batch = len(batch_plan) > 1 and st.button(
-                        "Simulate complete product reformulation (all flagged ingredients)"
-                    )
+                    run_batch = len(batch_plan) > 1 and st.button("Simulate all replacements")
 
                 if run_single:
                     try:
@@ -554,7 +544,7 @@ if active_page == "📊 Dashboard":
                 if run_batch:
                     try:
                         batch_simulated = simulate_multi_reformulation(reasoner, product, batch_plan)
-                        st.subheader("Complete Reformulation Plan (Before vs. After)")
+                        st.subheader("Before vs. After")
                         for orig_ing, rep_ing in batch_plan.items():
                             st.write(
                                 f"• Replace **{label(engine.graph, orig_ing)}** → **{label(engine.graph, rep_ing)}**"
@@ -568,32 +558,25 @@ if active_page == "📊 Dashboard":
                         st.error(str(exc))
 
     with tab_catalog:
-        st.header("Knowledge Graph Ingredient Catalog")
-        st.caption(
-            "Complete A-Box catalog of ingredients, E-numbers, biological origins, functional roles, and certificates."
-        )
+        st.subheader("Ingredient catalog")
         st.dataframe(_build_catalog_rows(engine), width="stretch", hide_index=True)
 
 # =====================================================================
-# PAGE 2: NEW PRODUCT (COMPLETE PRODUCT AUTHORING FORM)
+# PAGE 2: NEW PRODUCT
 # =====================================================================
-elif active_page == "➕ New Product":
-    st.title("➕ Add New Food Product")
-    st.caption(
-        "Register a new finished food product (`food:FoodProduct`) in the session knowledge graph "
-        "and compose its Bill of Materials (BOM) from existing or custom ingredients."
-    )
+elif active_page == "New Product":
+    st.title("New Product")
+    st.caption("Add a product to this session and select its ingredients.")
 
     ingredient_options = engine.ingredients()
     with st.form("new_product_form"):
-        st.subheader("Product Identity & Bill of Materials")
-        prod_name = st.text_input("Product name", placeholder="e.g. Vegan Berry Tart")
+        prod_name = st.text_input("Product name", placeholder="e.g. Berry Tart")
         prod_comment = st.text_area(
-            "Product description / labelling notes (optional)",
-            placeholder="e.g. Plant-based tart glazed with citrus pectin and sweetened with agave nectar.",
+            "Notes (optional)",
+            placeholder="Short product description or label note",
         )
         selected_ings = st.multiselect(
-            "Direct ingredients (food:containsIngredient)",
+            "Ingredients",
             ingredient_options,
             format_func=lambda node: label(engine.graph, node),
         )
@@ -603,19 +586,19 @@ elif active_page == "➕ New Product":
         try:
             new_prod = recipe.add_product(prod_name, ingredients=selected_ings, comment=prod_comment)
             st.session_state.selected_product = new_prod
-            st.success(f"Created product **{label(recipe.graph, new_prod)}** and set it as active on the Dashboard.")
+            st.success(f"Created **{label(recipe.graph, new_prod)}**.")
         except ValueError as exc:
             st.error(str(exc))
 
-    st.subheader("Registered Food Products in Active Graph")
+    st.subheader("Products")
     prod_rows = []
     for prod in engine.products():
         eval_res = reasoner.evaluate_product(prod)
         direct = [label(engine.graph, i) for i in engine.direct_ingredients(prod)]
         prod_rows.append({
             "Product": label(engine.graph, prod),
-            "Type": "Custom Session" if prod in recipe.owned else "Ontology Benchmark",
-            "Direct Ingredients": ", ".join(direct) or "None",
+            "Source": "Custom" if prod in recipe.owned else "Default",
+            "Ingredients": ", ".join(direct) or "None",
             "Halal": eval_res[FOOD.Halal]["status"],
             "Kosher": eval_res[FOOD.Kosher]["status"],
             "Vegetarian": eval_res[FOOD.Vegetarian]["status"],
@@ -624,14 +607,11 @@ elif active_page == "➕ New Product":
     st.dataframe(prod_rows, width="stretch", hide_index=True)
 
 # =====================================================================
-# PAGE 3: NEW INGREDIENT (COMPLETE INGREDIENT & LABELLING FORM)
+# PAGE 3: NEW INGREDIENT
 # =====================================================================
-elif active_page == "🧪 New Ingredient":
-    st.title("🧪 Add New Ingredient & Ontology Labelling")
-    st.caption(
-        "Author a new raw material, compound ingredient, or E-number food additive (`food:Ingredient`) "
-        "with full semantic labelling, origin classification, certificates, and supply chain links."
-    )
+elif active_page == "New Ingredient":
+    st.title("New Ingredient")
+    st.caption("Add an ingredient with its label, origin, role, and certificates.")
 
     origin_options = _available_origins(engine.graph)
     role_options = [None] + _available_roles(engine.graph)
@@ -648,55 +628,52 @@ elif active_page == "🧪 New Ingredient":
     )
 
     with st.form("new_ingredient_form"):
-        st.subheader("1. Identity & Regulatory Labelling")
         col_id1, col_id2 = st.columns([2, 1])
         with col_id1:
-            ing_name = st.text_input("Ingredient name (rdfs:label)", placeholder="e.g. Fermented Berry Extract")
+            ing_name = st.text_input("Ingredient name", placeholder="e.g. Berry Extract")
         with col_id2:
-            e_number = st.text_input("INS / E-Number (food:eNumber)", placeholder="e.g. E440 (optional)")
+            e_number = st.text_input("E-Number", placeholder="e.g. E440 (optional)")
         ing_comment = st.text_input(
-            "Regulatory / supplier labelling notes (rdfs:comment)",
-            placeholder="Optional declaration or specification note",
+            "Notes (optional)",
+            placeholder="Supplier or label note",
         )
 
-        st.subheader("2. Biological Origin, Functional Role & Chemical Properties")
         col_prop1, col_prop2 = st.columns(2)
         with col_prop1:
             selected_origins = st.multiselect(
-                "Biological & byproduct origins (food:derivedFrom)",
+                "Origins",
                 origin_options,
                 format_func=lambda node: label(engine.graph, node),
-                help="Leave empty if origin is unverified/unspecified (triggers Halal audit on leaf ingredients).",
+                help="Leave empty if the origin is unknown. Unknown origins trigger a Halal audit.",
             )
         with col_prop2:
             selected_role = st.selectbox(
-                "Functional role (food:hasFunctionalRole)",
+                "Functional role",
                 role_options,
-                format_func=lambda node: "None / Unspecified" if node is None else label(engine.graph, node),
+                format_func=lambda node: "None" if node is None else label(engine.graph, node),
             )
 
         col_eth1, col_eth2 = st.columns([1, 2])
         with col_eth1:
             specify_ethanol = st.checkbox("Set ethanol percentage")
         with col_eth2:
-            ethanol = st.number_input("Ethanol percentage (% v/v)", min_value=0.0, max_value=100.0, value=0.0)
+            ethanol = st.number_input("Ethanol % (v/v)", min_value=0.0, max_value=100.0, value=0.0)
 
-        st.subheader("3. Certifications & Supply Chain BOM Attachment")
         selected_certs = st.multiselect(
-            "Compliance certificates (food:hasCertificate)",
+            "Certificates",
             cert_options,
             format_func=lambda node: label(engine.graph, node),
         )
         sub_ings = st.multiselect(
-            "Sub-ingredients if compound (food:containsIngredient)",
+            "Sub-ingredients (optional)",
             ingredient_options,
             format_func=lambda node: label(engine.graph, node),
         )
         parent_node = st.selectbox(
-            "Attach directly to product or compound ingredient (optional)",
+            "Add to product or ingredient (optional)",
             parent_targets,
             index=default_parent_idx,
-            format_func=lambda node: "Standalone (add to catalog only)" if node is None else label(engine.graph, node),
+            format_func=lambda node: "None (catalog only)" if node is None else label(engine.graph, node),
         )
 
         save_ing = st.form_submit_button("Save ingredient")
@@ -714,23 +691,23 @@ elif active_page == "🧪 New Ingredient":
                 comment=ing_comment,
                 sub_ingredients=sub_ings,
             )
-            st.success(f"Saved ingredient **{label(recipe.graph, created)}** into the knowledge graph.")
+            st.success(f"Saved **{label(recipe.graph, created)}**.")
         except ValueError as exc:
             st.error(str(exc))
 
-    with st.expander("🔗 Link an Existing Catalog Ingredient to a Product or Custom Compound Ingredient"):
+    with st.expander("Link existing ingredient"):
         with st.form("link_existing_ingredient_form"):
             link_targets = engine.products() + sorted(
                 [node for node in recipe.owned if (node, RDF.type, FOOD.Ingredient) in engine.graph],
                 key=str,
             )
             link_parent = st.selectbox(
-                "Target parent",
+                "Parent",
                 link_targets,
                 format_func=lambda node: label(engine.graph, node),
             )
             link_child = st.selectbox(
-                "Existing catalog ingredient",
+                "Ingredient",
                 ingredient_options,
                 format_func=lambda node: label(engine.graph, node),
             )
@@ -738,42 +715,39 @@ elif active_page == "🧪 New Ingredient":
         if do_link:
             try:
                 recipe.link_ingredient(link_parent, link_child)
-                st.success(f"Linked **{label(recipe.graph, link_child)}** under **{label(recipe.graph, link_parent)}**.")
+                st.success(f"Linked **{label(recipe.graph, link_child)}** to **{label(recipe.graph, link_parent)}**.")
             except ValueError as exc:
                 st.error(str(exc))
 
-    st.subheader("Current Ingredient Catalog")
+    st.subheader("Ingredient catalog")
     st.dataframe(_build_catalog_rows(engine), width="stretch", hide_index=True)
 
 # =====================================================================
 # PAGE 4: TOOLS & EXPORT
 # =====================================================================
-elif active_page == "🛠️ Tools & Export":
-    st.title("🛠️ Knowledge Graph Tools & Export")
-    st.caption(
-        "Inspect active RDF graph telemetry, export Turtle (.ttl) ontologies or materialized inference graphs, "
-        "and download compliance audit reports."
-    )
+elif active_page == "Tools & Export":
+    st.title("Tools & Export")
+    st.caption("Download the graph or audit report, or reset custom session changes.")
 
     enriched_graph = reasoner.materialize()
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
-    m_col1.metric("Food Products", len(products))
+    m_col1.metric("Products", len(products))
     m_col2.metric("Ingredients", len(engine.ingredients()))
-    m_col3.metric("Asserted RDF Triples", len(engine.graph))
-    m_col4.metric("Materialized Triples", len(enriched_graph))
+    m_col3.metric("Base Triples", len(engine.graph))
+    m_col4.metric("Inferred Triples", len(enriched_graph))
 
-    st.subheader("Export Knowledge Graph & Audit Reports")
+    st.subheader("Export")
     exp_col1, exp_col2, exp_col3 = st.columns(3)
     with exp_col1:
         st.download_button(
-            "⬇️ Export Active Graph (.ttl)",
+            "Export Graph (.ttl)",
             data=engine.graph.serialize(format="turtle"),
             file_name="food_compliance_session.ttl",
             mime="text/turtle",
         )
     with exp_col2:
         st.download_button(
-            "⬇️ Export Materialized Graph (.ttl)",
+            "Export Inferred Graph (.ttl)",
             data=enriched_graph.serialize(format="turtle"),
             file_name="food_compliance_materialized.ttl",
             mime="text/turtle",
@@ -790,30 +764,30 @@ elif active_page == "🛠️ Tools & Export":
             for prod in products
         }
         st.download_button(
-            "⬇️ Export Compliance Audit (.json)",
+            "Export Audit Report (.json)",
             data=json.dumps(audit_payload, indent=2),
             file_name="food_compliance_audit.json",
             mime="application/json",
         )
 
-    st.subheader("Session Graph Management")
-    if st.button("Reset session graph to base ontology"):
+    st.subheader("Session data")
+    if st.button("Reset session data"):
         st.session_state.recipe = RecipeBuilder(base_engine.graph)
         st.session_state.selected_product = FOOD.StrawberryGummyCandy
         st.rerun()
 
 # =====================================================================
-# PAGE 5: SETTINGS (THEME & FONT SIZE)
+# PAGE 5: SETTINGS
 # =====================================================================
-elif active_page == "⚙️ Settings":
-    st.title("⚙️ Display & Accessibility Settings")
-    st.caption("Customize the visual theme palette and typography scale across all pages and supply chain graphs.")
+elif active_page == "Settings":
+    st.title("Settings")
+    st.caption("Set the color theme and text size.")
 
     theme_options = list(THEME_PALETTES.keys())
     font_options = list(FONT_SIZES.keys())
 
     new_theme = st.radio(
-        "Theme mode",
+        "Theme",
         theme_options,
         index=theme_options.index(st.session_state.theme_choice),
         horizontal=True,
@@ -829,17 +803,17 @@ elif active_page == "⚙️ Settings":
         st.session_state.font_choice = new_font
         st.rerun()
 
-    st.subheader("Active Palette & Typography Preview")
+    st.subheader("Node colors")
     st.markdown(
         f"""
         <div class="kg-banner">
-            <strong>Active Theme:</strong> {st.session_state.theme_choice} ·
-            <strong>Base Font Size:</strong> {st.session_state.font_choice}<br/>
-            <span class="kg-pill">🔵 Product ({palette['nodes']['product']})</span>
-            <span class="kg-pill">🟠 Ingredient ({palette['nodes']['ingredient']})</span>
-            <span class="kg-pill">🔴 Flagged ({palette['nodes']['flagged']})</span>
-            <span class="kg-pill">⚪ Origin ({palette['nodes']['origin']})</span>
-            <span class="kg-pill">🟢 Certificate ({palette['nodes']['certificate']})</span>
+            <strong>Theme:</strong> {st.session_state.theme_choice} ·
+            <strong>Font size:</strong> {st.session_state.font_choice}<br/>
+            <span class="kg-pill">Product ({palette['nodes']['product']})</span>
+            <span class="kg-pill">Ingredient ({palette['nodes']['ingredient']})</span>
+            <span class="kg-pill">Flagged ({palette['nodes']['flagged']})</span>
+            <span class="kg-pill">Origin ({palette['nodes']['origin']})</span>
+            <span class="kg-pill">Certificate ({palette['nodes']['certificate']})</span>
         </div>
         """,
         unsafe_allow_html=True,

@@ -19,11 +19,11 @@ class AppTests(unittest.TestCase):
         self.assertEqual(
             list(nav_radio.options),
             [
-                "📊 Dashboard",
-                "➕ New Product",
-                "🧪 New Ingredient",
-                "🛠️ Tools & Export",
-                "⚙️ Settings",
+                "Dashboard",
+                "New Product",
+                "New Ingredient",
+                "Tools & Export",
+                "Settings",
             ],
         )
         for r in app.sidebar.radio:
@@ -54,7 +54,7 @@ class AppTests(unittest.TestCase):
         nav_radio = next(r for r in app.sidebar.radio if r.label == "Menu")
 
         # 1. Go to New Product page and create a product
-        nav_radio.set_value("➕ New Product").run()
+        nav_radio.set_value("New Product").run()
         self.assertFalse(app.exception)
         prod_name = next(ti for ti in app.text_input if ti.label == "Product name")
         prod_name.input("Test Custom Product")
@@ -64,9 +64,9 @@ class AppTests(unittest.TestCase):
 
         # 2. Go to New Ingredient page and create a labelled ingredient attached to the product
         nav_radio = next(r for r in app.sidebar.radio if r.label == "Menu")
-        nav_radio.set_value("🧪 New Ingredient").run()
+        nav_radio.set_value("New Ingredient").run()
         self.assertFalse(app.exception)
-        ing_name = next(ti for ti in app.text_input if ti.label == "Ingredient name (rdfs:label)")
+        ing_name = next(ti for ti in app.text_input if ti.label == "Ingredient name")
         ing_name.input("Extract")
         e_num_input = next(ti for ti in app.text_input if "E-Number" in ti.label)
         e_num_input.input("E999")
@@ -80,11 +80,11 @@ class AppTests(unittest.TestCase):
 
         # 3. Return to Dashboard and verify the new product & ingredient are evaluated
         nav_radio = next(r for r in app.sidebar.radio if r.label == "Menu")
-        nav_radio.set_value("📊 Dashboard").run()
+        nav_radio.set_value("Dashboard").run()
         self.assertFalse(app.exception)
         self.assertTrue(any("Ethanol exceeds" in item.label for item in app.expander))
         node_select = next(sb for sb in app.selectbox if sb.label == "Node details")
-        self.assertIn("Extract", [ str(opt) for opt in node_select.options ] + [
+        self.assertIn("Extract", [str(opt) for opt in node_select.options] + [
             item.value for item in app.markdown
         ])
 
@@ -92,17 +92,17 @@ class AppTests(unittest.TestCase):
         app = AppTest.from_file(str(APP), default_timeout=30).run()
         nav_radio = next(r for r in app.sidebar.radio if r.label == "Menu")
 
-        nav_radio.set_value("⚙️ Settings").run()
+        nav_radio.set_value("Settings").run()
         self.assertFalse(app.exception)
         theme_radio = next(r for r in app.radio if "Theme" in r.label)
         font_select = next(sb for sb in app.selectbox if "Font size" in sb.label)
-        theme_radio.set_value("🌞 Light (Day)").run()
+        theme_radio.set_value("Light").run()
         self.assertFalse(app.exception)
         font_select.set_value("Large (18px)").run()
         self.assertFalse(app.exception)
 
         nav_radio = next(r for r in app.sidebar.radio if r.label == "Menu")
-        nav_radio.set_value("🛠️ Tools & Export").run()
+        nav_radio.set_value("Tools & Export").run()
         self.assertFalse(app.exception)
         self.assertTrue(any("Export" in item.value for item in list(app.title) + list(app.subheader)))
 
