@@ -42,6 +42,18 @@ THEME_PALETTES = {
         "edge_font_color": "#f1f5f9",
         "edge_stroke": "#0f172a",
         "node_font_color": "#ffffff",
+        "alert_error_bg": "#3b161b",
+        "alert_error_border": "#7f1d1d",
+        "alert_error_text": "#fecaca",
+        "alert_warning_bg": "#362810",
+        "alert_warning_border": "#78350f",
+        "alert_warning_text": "#fde68a",
+        "alert_success_bg": "#0f2e1f",
+        "alert_success_border": "#14532d",
+        "alert_success_text": "#bbf7d0",
+        "alert_info_bg": "#13263d",
+        "alert_info_border": "#1e3a5f",
+        "alert_info_text": "#bae6fd",
         "nodes": {
             "product": "#2563eb",
             "ingredient": "#d97706",
@@ -56,13 +68,25 @@ THEME_PALETTES = {
         "card_bg": "#ffffff",
         "sidebar_bg": "#f1f5f9",
         "text": "#0f172a",
-        "muted": "#334155",
+        "muted": "#475569",
         "border": "#cbd5e1",
         "accent": "#0284c7",
         "edge_color": "#475569",
         "edge_font_color": "#0f172a",
         "edge_stroke": "#ffffff",
         "node_font_color": "#ffffff",
+        "alert_error_bg": "#fef2f2",
+        "alert_error_border": "#fecaca",
+        "alert_error_text": "#991b1b",
+        "alert_warning_bg": "#fffbeb",
+        "alert_warning_border": "#fde68a",
+        "alert_warning_text": "#92400e",
+        "alert_success_bg": "#f0fdf4",
+        "alert_success_border": "#bbf7d0",
+        "alert_success_text": "#166534",
+        "alert_info_bg": "#f0f9ff",
+        "alert_info_border": "#bae6fd",
+        "alert_info_text": "#075985",
         "nodes": {
             "product": "#1d4ed8",
             "ingredient": "#b45309",
@@ -106,6 +130,18 @@ def _apply_theme_and_typography(theme_key: str, font_label: str) -> dict:
             --app-border: {palette['border']};
             --app-accent: {palette['accent']};
             --app-font-size: {base_px}px;
+            --alert-error-bg: {palette['alert_error_bg']};
+            --alert-error-border: {palette['alert_error_border']};
+            --alert-error-text: {palette['alert_error_text']};
+            --alert-warning-bg: {palette['alert_warning_bg']};
+            --alert-warning-border: {palette['alert_warning_border']};
+            --alert-warning-text: {palette['alert_warning_text']};
+            --alert-success-bg: {palette['alert_success_bg']};
+            --alert-success-border: {palette['alert_success_border']};
+            --alert-success-text: {palette['alert_success_text']};
+            --alert-info-bg: {palette['alert_info_bg']};
+            --alert-info-border: {palette['alert_info_border']};
+            --alert-info-text: {palette['alert_info_text']};
         }}
         .stApp, [data-testid="stAppViewContainer"], [data-testid="stHeader"] {{
             background-color: var(--app-bg) !important;
@@ -145,19 +181,136 @@ def _apply_theme_and_typography(theme_key: str, font_label: str) -> dict:
             font-size: {small_px}px !important;
             color: var(--app-muted) !important;
         }}
-        [data-testid="stForm"], [data-testid="stExpander"] {{
+        /* Forms & Expanders */
+        [data-testid="stForm"],
+        [data-testid="stExpander"] {{
             background-color: var(--app-surface) !important;
             border: 1px solid var(--app-border) !important;
-            border-radius: 10px !important;
+            border-radius: 6px !important;
         }}
+        [data-testid="stExpander"] details,
+        [data-testid="stExpander"] details > summary,
+        [data-testid="stExpander"] [data-testid="stExpanderDetails"] {{
+            background-color: var(--app-surface) !important;
+            color: var(--app-text) !important;
+        }}
+        [data-testid="stExpander"] details > summary:hover {{
+            background-color: var(--app-bg) !important;
+        }}
+        [data-testid="stExpander"] details > summary svg {{
+            fill: var(--app-muted) !important;
+            color: var(--app-muted) !important;
+        }}
+        /* Alerts (Error, Warning, Success, Info) */
+        [data-testid="stAlert"] > div {{
+            background-color: var(--app-surface) !important;
+            border: 1px solid var(--app-border) !important;
+            border-radius: 6px !important;
+        }}
+        [data-testid="stAlert"]:has([data-testid="stAlertContentError"]) > div,
+        [data-testid="stAlert"] [data-baseweb="notification"]:has([data-testid="stAlertContentError"]) {{
+            background-color: var(--alert-error-bg) !important;
+            border: 1px solid var(--alert-error-border) !important;
+        }}
+        [data-testid="stAlertContentError"],
+        [data-testid="stAlertContentError"] p,
+        [data-testid="stAlertContentError"] span {{
+            color: var(--alert-error-text) !important;
+            font-weight: 600 !important;
+        }}
+        [data-testid="stAlert"]:has([data-testid="stAlertContentWarning"]) > div,
+        [data-testid="stAlert"] [data-baseweb="notification"]:has([data-testid="stAlertContentWarning"]) {{
+            background-color: var(--alert-warning-bg) !important;
+            border: 1px solid var(--alert-warning-border) !important;
+        }}
+        [data-testid="stAlertContentWarning"],
+        [data-testid="stAlertContentWarning"] p,
+        [data-testid="stAlertContentWarning"] span {{
+            color: var(--alert-warning-text) !important;
+            font-weight: 600 !important;
+        }}
+        [data-testid="stAlert"]:has([data-testid="stAlertContentSuccess"]) > div,
+        [data-testid="stAlert"] [data-baseweb="notification"]:has([data-testid="stAlertContentSuccess"]) {{
+            background-color: var(--alert-success-bg) !important;
+            border: 1px solid var(--alert-success-border) !important;
+        }}
+        [data-testid="stAlertContentSuccess"],
+        [data-testid="stAlertContentSuccess"] p,
+        [data-testid="stAlertContentSuccess"] span {{
+            color: var(--alert-success-text) !important;
+            font-weight: 600 !important;
+        }}
+        [data-testid="stAlert"]:has([data-testid="stAlertContentInfo"]) > div,
+        [data-testid="stAlert"] [data-baseweb="notification"]:has([data-testid="stAlertContentInfo"]) {{
+            background-color: var(--alert-info-bg) !important;
+            border: 1px solid var(--alert-info-border) !important;
+        }}
+        [data-testid="stAlertContentInfo"],
+        [data-testid="stAlertContentInfo"] p,
+        [data-testid="stAlertContentInfo"] span {{
+            color: var(--alert-info-text) !important;
+            font-weight: 600 !important;
+        }}
+        /* Inputs, Selects, Popovers & Buttons */
         [data-baseweb="select"] > div,
+        [data-baseweb="input"],
         [data-baseweb="input"] > div,
-        [data-baseweb="base-input"] {{
+        [data-baseweb="base-input"],
+        [data-baseweb="textarea"],
+        [data-baseweb="textarea"] > div,
+        .stTextInput input,
+        .stTextArea textarea,
+        .stNumberInput input {{
             background-color: var(--app-surface) !important;
             color: var(--app-text) !important;
             border-color: var(--app-border) !important;
             font-size: {base_px}px !important;
         }}
+        [data-baseweb="select"] span,
+        [data-baseweb="select"] input {{
+            color: var(--app-text) !important;
+        }}
+        [data-baseweb="select"] svg,
+        .stNumberInput button svg {{
+            fill: var(--app-muted) !important;
+            color: var(--app-muted) !important;
+        }}
+        [data-baseweb="popover"],
+        [data-baseweb="popover"] ul,
+        [data-baseweb="menu"],
+        [role="listbox"] {{
+            background-color: var(--app-surface) !important;
+            color: var(--app-text) !important;
+            border-color: var(--app-border) !important;
+        }}
+        [role="option"] {{
+            background-color: var(--app-surface) !important;
+            color: var(--app-text) !important;
+        }}
+        [role="option"]:hover,
+        [role="option"][aria-selected="true"] {{
+            background-color: var(--app-border) !important;
+            color: var(--app-text) !important;
+        }}
+        .stButton > button,
+        .stDownloadButton > button,
+        [data-testid="stFormSubmitButton"] > button {{
+            background-color: var(--app-surface) !important;
+            color: var(--app-text) !important;
+            border: 1px solid var(--app-border) !important;
+            border-radius: 6px !important;
+        }}
+        .stButton > button:hover,
+        .stDownloadButton > button:hover,
+        [data-testid="stFormSubmitButton"] > button:hover {{
+            background-color: var(--app-border) !important;
+            border-color: var(--app-accent) !important;
+        }}
+        [data-testid="stMetricValue"],
+        [data-testid="stMetricLabel"] {{
+            color: var(--app-text) !important;
+        }}
+        /* Tabs */
         button[data-baseweb="tab"] {{
             font-size: {base_px}px !important;
             font-weight: 600 !important;
@@ -168,24 +321,26 @@ def _apply_theme_and_typography(theme_key: str, font_label: str) -> dict:
             color: var(--app-accent) !important;
             border-bottom-color: var(--app-accent) !important;
         }}
-        .kg-banner {{
+        /* Clean flat summary block */
+        .product-summary {{
             background: var(--app-surface);
             border: 1px solid var(--app-border);
-            border-left: 5px solid var(--app-accent);
-            border-radius: 12px;
-            padding: 16px 20px;
-            margin-bottom: 16px;
+            border-radius: 6px;
+            padding: 12px 16px;
+            margin-bottom: 12px;
         }}
-        .kg-pill {{
+        .product-summary-meta {{
+            color: var(--app-muted) !important;
+            font-size: {small_px}px !important;
+            margin-top: 6px;
+        }}
+        .color-swatch {{
             display: inline-block;
-            background: var(--app-surface);
-            color: var(--app-text);
-            border: 1px solid var(--app-border);
-            border-radius: 999px;
-            padding: 3px 12px;
-            margin: 2px 6px 2px 0;
-            font-size: {small_px}px;
-            font-weight: 500;
+            width: 10px;
+            height: 10px;
+            border-radius: 2px;
+            margin-right: 6px;
+            vertical-align: middle;
         }}
         </style>
         """,
@@ -346,14 +501,13 @@ if active_page == "Dashboard":
     }
 
     with top_col2:
-        pills_html = "".join(f'<span class="kg-pill">{name}</span>' for name in direct_ings) or "<em>None</em>"
+        ings_text = ", ".join(direct_ings) if direct_ings else "None"
         st.markdown(
             f"""
-            <div class="kg-banner">
-                <strong>Product:</strong> {label(engine.graph, product)}<br/>
-                <strong>Direct ingredients ({len(direct_ings)}):</strong> {pills_html}<br/>
-                <small>Sub-ingredients: <strong>{len(reachable_ings)}</strong> ·
-                Flagged: <strong>{len(flagged_all)}</strong></small>
+            <div class="product-summary">
+                <div><strong>{label(engine.graph, product)}</strong></div>
+                <div>Direct ingredients ({len(direct_ings)}): {ings_text}</div>
+                <div class="product-summary-meta">Sub-ingredients: {len(reachable_ings)} · Flagged: {len(flagged_all)}</div>
             </div>
             """,
             unsafe_allow_html=True,
@@ -806,14 +960,12 @@ elif active_page == "Settings":
     st.subheader("Node colors")
     st.markdown(
         f"""
-        <div class="kg-banner">
-            <strong>Theme:</strong> {st.session_state.theme_choice} ·
-            <strong>Font size:</strong> {st.session_state.font_choice}<br/>
-            <span class="kg-pill">Product ({palette['nodes']['product']})</span>
-            <span class="kg-pill">Ingredient ({palette['nodes']['ingredient']})</span>
-            <span class="kg-pill">Flagged ({palette['nodes']['flagged']})</span>
-            <span class="kg-pill">Origin ({palette['nodes']['origin']})</span>
-            <span class="kg-pill">Certificate ({palette['nodes']['certificate']})</span>
+        <div class="product-summary">
+            <div><span class="color-swatch" style="background:{palette['nodes']['product']}"></span>Product ({palette['nodes']['product']})</div>
+            <div><span class="color-swatch" style="background:{palette['nodes']['ingredient']}"></span>Ingredient ({palette['nodes']['ingredient']})</div>
+            <div><span class="color-swatch" style="background:{palette['nodes']['flagged']}"></span>Flagged ({palette['nodes']['flagged']})</div>
+            <div><span class="color-swatch" style="background:{palette['nodes']['origin']}"></span>Origin ({palette['nodes']['origin']})</div>
+            <div><span class="color-swatch" style="background:{palette['nodes']['certificate']}"></span>Certificate ({palette['nodes']['certificate']})</div>
         </div>
         """,
         unsafe_allow_html=True,
