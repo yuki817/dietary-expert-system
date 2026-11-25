@@ -1,4 +1,5 @@
 from pathlib import Path
+import runpy
 
 import streamlit as st
 from rdflib import URIRef
@@ -24,8 +25,12 @@ st.title("Food Compliance Expert System")
 st.write("Explore dietary compliance and ingredient supply chains.")
 page = st.sidebar.radio(
     "Choose a use case",
-    ("Compliance scorecard", "Supply chain explorer", "Reformulation advisor"),
+    ("Compliance scorecard", "Supply chain explorer", "Reformulation advisor", "Sample page"),
 )
+
+if page == "Sample page":
+    runpy.run_path(str(ROOT / "sample.py"))
+    st.stop()
 
 try:
     base_engine = KnowledgeEngine.from_turtle(
