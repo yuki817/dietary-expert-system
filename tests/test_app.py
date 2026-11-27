@@ -12,7 +12,7 @@ APP = Path(__file__).resolve().parents[1] / "app.py"
 
 
 class AppTests(unittest.TestCase):
-    def test_sidebar_has_five_menu_pages_and_no_legacy_option(self):
+    def test_sidebar_has_menu_pages_and_no_legacy_option(self):
         app = AppTest.from_file(str(APP), default_timeout=30).run()
         self.assertFalse(app.exception)
         nav_radio = next(r for r in app.sidebar.radio if r.label == "Menu")
@@ -23,6 +23,7 @@ class AppTests(unittest.TestCase):
                 "New Product",
                 "New Ingredient",
                 "Tools & Export",
+                "Ontology Graphs",
                 "Settings",
             ],
         )
@@ -117,6 +118,16 @@ class AppTests(unittest.TestCase):
         nav_radio.set_value("Tools & Export").run()
         self.assertFalse(app.exception)
         self.assertTrue(any("Export" in item.value for item in list(app.title) + list(app.subheader)))
+
+        next(r for r in app.sidebar.radio if r.label == "Menu").set_value("Ontology Graphs").run()
+        self.assertFalse(app.exception)
+        self.assertFalse(any("Showing asserted data from" in item.value for item in app.caption))
+        next(btn for btn in app.button if btn.label == "Show TBox Graph").click().run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any("food_compliance_tbox.ttl" in item.value for item in app.caption))
+        next(btn for btn in app.button if btn.label == "Show ABox Graph").click().run()
+        self.assertFalse(app.exception)
+        self.assertTrue(any("food_compliance_abox.ttl" in item.value for item in app.caption))
 
     def test_recovers_from_stale_session_recipe_without_add_product(self):
         class LegacyRecipeStub:

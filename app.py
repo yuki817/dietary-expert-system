@@ -3,11 +3,11 @@ import json
 from pathlib import Path
 
 import streamlit as st
-from rdflib import RDF, RDFS, URIRef
+from rdflib import Graph, RDF, RDFS, URIRef
 from streamlit_agraph import Config, Edge, Node, agraph
 
 import src.recipes as _recipes_mod
-from src.graph_visualizer import edge_label, graph_data, ingredient_path, label, node_level
+from src.graph_visualizer import abox_product_graph_data, edge_label, graph_data, ingredient_path, label, node_level, ontology_graph_data
 from src.knowledge_engine import FOOD, KnowledgeEngine, KnowledgeGraphError, STANDARDS
 from src.queries import query_substitutes, simulate_multi_reformulation
 from src.reasoner import DietaryReasoner
@@ -25,6 +25,7 @@ MENU_PAGES = (
     "New Product",
     "New Ingredient",
     "Tools & Export",
+    "Ontology Graphs",
     "Settings",
 )
 
@@ -904,7 +905,7 @@ elif active_page == "New Ingredient":
 # =====================================================================
 elif active_page == "Tools & Export":
     st.title("Tools & Export")
-    st.caption("Download the graph or audit report, or reset custom session changes.")
+    st.caption("Download data or reset custom session changes.")
 
     enriched_graph = reasoner.materialize()
     m_col1, m_col2, m_col3, m_col4 = st.columns(4)
@@ -954,7 +955,72 @@ elif active_page == "Tools & Export":
         st.rerun()
 
 # =====================================================================
-# PAGE 5: SETTINGS
+# PAGE 5: ONTOLOGY GRAPHS
+# =====================================================================
+elif active_page == "Ontology Graphs":
+    st.title("Ontology Graphs")
+    button_col1, button_col2 = st.columns(2)
+    with button_col1:
+        if st.button("Show TBox Graph"):
+            st.session_state.ontology_graph_choice = "tbox"
+    with button_col2:
+        if st.button("Show ABox Graph"):
+            st.session_state.ontology_graph_choice = "abox"
+
+    if st.session_state.get("ontology_graph_choice"):
+        ontology_file = (
+            "food_compliance_tbox.ttl" if st.session_state.ontology_graph_choice == "tbox"
+            else "food_compliance_abox.ttl"
+        )
+        ontology_graph = Graph().parse(ROOT / "ontology" / ontology_file, format="turtle")
+        if st.session_state.ontology_graph_choice == "abox":
+            abox_engine = KnowledgeEngine(ontology_graph)
+            abox_products = abox_engine.products()
+            if not abox_products:
+                st.warning("No products found in the A-Box.")
+                st.stop()
+            abox_product = st.selectbox(
+                "A-Box product", abox_products,
+                format_func=lambda node: label(ontology_graph, node),
+                key="abox_graph_product",
+            )
+            ontology_nodes, ontology_edges = abox_product_graph_data(abox_engine, abox_product)
+            st.caption("Showing the selected product's ingredients, origins, certificates, and roles.")
+        else:
+            ontology_nodes, ontology_edges = ontology_graph_data(ontology_graph)
+        st.caption(
+            f"Showing asserted data from {ontology_file}: {len(ontology_nodes)} nodes and "
+            f"{len(ontology_edges)} relationships. "
+            "RDF and OWL vocabulary nodes, session changes, and inferred statements are hidden."
+        )
+        selected_ontology_node = agraph(
+            nodes=[
+                Node(
+                    id=node.n3(),
+                    label=label(ontology_graph, node),
+                    title=str(node),
+                    color=palette["nodes"]["product"],
+                    shape="box",
+                    font={"color": palette["node_font_color"], "size": node_font_px},
+                )
+                for node in ontology_nodes
+            ],
+            edges=[
+                Edge(source=source.n3(), target=target.n3(), label=edge_label(ontology_graph, predicate),
+                     color=palette["edge_color"],
+                     font={"color": palette["edge_font_color"], "strokeColor": palette["edge_stroke"],
+                           "strokeWidth": 3})
+                for source, predicate, target in ontology_edges
+            ],
+            config=Config(height=650, width="100%", directed=True, physics=True),
+        )
+        selected_term = next((node for node in ontology_nodes if node.n3() == selected_ontology_node), None)
+        if selected_term is not None:
+            st.write(f"**Selected:** {label(ontology_graph, selected_term)}")
+            st.code(str(selected_term))
+
+# =====================================================================
+# PAGE 6: SETTINGS
 # =====================================================================
 elif active_page == "Settings":
     st.title("Settings")

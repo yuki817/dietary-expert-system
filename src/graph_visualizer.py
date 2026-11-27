@@ -2,7 +2,7 @@
 
 from collections import deque
 
-from rdflib import Literal, RDF, RDFS
+from rdflib import Literal, OWL, RDF, RDFS, URIRef, XSD
 
 from src.knowledge_engine import FOOD
 
@@ -50,6 +50,27 @@ def edge_label(graph, predicate):
     if predicate in SHORT_EDGE_LABELS:
         return SHORT_EDGE_LABELS[predicate]
     return label(graph, predicate)
+
+
+def ontology_graph_data(graph, include_literals=False):
+    """Return domain relationships without RDF/OWL vocabulary nodes."""
+    nodes = set()
+    edges = []
+    vocabulary_namespaces = tuple(map(str, (RDF, RDFS, OWL, XSD)))
+    for source, predicate, target in graph:
+        if isinstance(target, Literal) and not include_literals:
+            continue
+        if any(
+            isinstance(node, URIRef) and str(node).startswith(vocabulary_namespaces)
+            for node in (source, target)
+        ):
+            continue
+        nodes.add(source)
+        nodes.add(target)
+        edges.append((source, predicate, target))
+    return sorted(nodes, key=lambda node: node.n3()), sorted(
+        edges, key=lambda edge: tuple(node.n3() for node in edge)
+    )
 
 
 def node_level(root, nodes, edges):
@@ -102,3 +123,17 @@ def graph_data(engine, root, flagged):
         if node in nodes and node != root:
             nodes[node] = "flagged"
     return nodes, sorted(edges, key=lambda edge: tuple(map(str, edge)))
+
+
+def abox_product_graph_data(engine, product):
+    """Return one product's ingredient chain and directly related domain nodes."""
+    nodes, edges = graph_data(engine, product, set())
+    for ingredient, kind in list(nodes.items()):
+        if kind != "ingredient":
+            continue
+        for role in engine.graph.objects(ingredient, FOOD.hasFunctionalRole):
+            nodes.setdefault(role, "role")
+            edges.append((ingredient, FOOD.hasFunctionalRole, role))
+    return sorted(nodes, key=lambda node: node.n3()), sorted(
+        edges, key=lambda edge: tuple(node.n3() for node in edge)
+    )

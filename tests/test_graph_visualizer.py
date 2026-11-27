@@ -1,12 +1,46 @@
 import unittest
 
-from rdflib import Graph, Literal, RDFS
+from rdflib import Graph, Literal, OWL, RDF, RDFS, XSD
 
-from src.graph_visualizer import edge_label, graph_data, ingredient_path, label, node_level
+from src.graph_visualizer import abox_product_graph_data, edge_label, graph_data, ingredient_path, label, node_level, ontology_graph_data
 from src.knowledge_engine import FOOD, KnowledgeEngine
 
 
 class GraphVisualizerTests(unittest.TestCase):
+    def test_abox_product_view_excludes_unrelated_products(self):
+        graph = Graph()
+        graph.add((FOOD.P, FOOD.containsIngredient, FOOD.A))
+        graph.add((FOOD.A, FOOD.containsIngredient, FOOD.B))
+        graph.add((FOOD.B, FOOD.derivedFrom, FOOD.Source))
+        graph.add((FOOD.B, FOOD.hasCertificate, FOOD.Cert))
+        graph.add((FOOD.B, FOOD.hasFunctionalRole, FOOD.Role))
+        graph.add((FOOD.OtherProduct, FOOD.containsIngredient, FOOD.OtherIngredient))
+        nodes, edges = abox_product_graph_data(KnowledgeEngine(graph), FOOD.P)
+        self.assertEqual(set(nodes), {FOOD.P, FOOD.A, FOOD.B, FOOD.Source, FOOD.Cert, FOOD.Role})
+        self.assertIn((FOOD.B, FOOD.hasFunctionalRole, FOOD.Role), edges)
+        self.assertNotIn(FOOD.OtherProduct, nodes)
+
+    def test_ontology_graph_can_include_literal_values(self):
+        graph = Graph()
+        graph.add((FOOD.A, FOOD.containsIngredient, FOOD.B))
+        graph.add((FOOD.A, RDFS.label, Literal("Example")))
+        graph.add((FOOD.OnlyLabel, RDFS.label, Literal("No relationships")))
+        nodes, edges = ontology_graph_data(graph)
+        self.assertEqual(set(nodes), {FOOD.A, FOOD.B})
+        self.assertEqual(edges, [(FOOD.A, FOOD.containsIngredient, FOOD.B)])
+        nodes, edges = ontology_graph_data(graph, include_literals=True)
+        self.assertIn(Literal("Example"), nodes)
+        self.assertIn((FOOD.A, RDFS.label, Literal("Example")), edges)
+
+    def test_ontology_graph_omits_vocabulary_nodes_but_keeps_domain_types(self):
+        graph = Graph()
+        graph.add((FOOD.Ingredient, RDF.type, OWL.Class))
+        graph.add((FOOD.A, RDF.type, FOOD.Ingredient))
+        graph.add((FOOD.ethanolPercentage, RDFS.range, XSD.float))
+        nodes, edges = ontology_graph_data(graph)
+        self.assertEqual(set(nodes), {FOOD.A, FOOD.Ingredient})
+        self.assertEqual(edges, [(FOOD.A, RDF.type, FOOD.Ingredient)])
+
     def test_graph_includes_direct_edges_sources_certificates_and_flags(self):
         graph = Graph()
         graph.add((FOOD.P, FOOD.containsIngredient, FOOD.A))
