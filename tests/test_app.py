@@ -45,9 +45,21 @@ class AppTests(unittest.TestCase):
     def test_plant_based_ramen_displays_green_pass_cards(self):
         app = AppTest.from_file(str(APP), default_timeout=30).run()
         product_select = next(sb for sb in app.selectbox if sb.label == "Product")
+        original_id = product_select.id
         product_select.set_value(FOOD.PlantBasedRamen).run()
         self.assertFalse(app.exception)
         self.assertEqual([item.value for item in app.success], ["Pass"] * 4)
+        app.run()
+        product_select = next(sb for sb in app.selectbox if sb.label == "Product")
+        self.assertEqual(product_select.id, original_id)
+        self.assertEqual(product_select.value, FOOD.PlantBasedRamen)
+        self.assertEqual(len([sb for sb in app.selectbox if sb.label == "Product"]), 1)
+
+        nav_radio = next(r for r in app.sidebar.radio if r.label == "Menu")
+        nav_radio.set_value("Settings").run()
+        next(r for r in app.sidebar.radio if r.label == "Menu").set_value("Dashboard").run()
+        product_select = next(sb for sb in app.selectbox if sb.label == "Product")
+        self.assertEqual(product_select.value, FOOD.PlantBasedRamen)
 
     def test_new_product_and_new_ingredient_pages_workflow(self):
         app = AppTest.from_file(str(APP), default_timeout=30).run()

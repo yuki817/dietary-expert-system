@@ -472,22 +472,23 @@ if active_page == "Dashboard":
         st.warning("No products found in the graph.")
         st.stop()
 
-    default_choice = (
-        recipe.product
-        if recipe.product in products
-        else st.session_state.selected_product
-    )
-    default_product = products.index(default_choice) if default_choice in products else 0
+    if st.session_state.selected_product not in products:
+        st.session_state.selected_product = products[0]
+    if "dashboard_product" not in st.session_state or st.session_state.dashboard_product not in products:
+        st.session_state.dashboard_product = st.session_state.selected_product
+
+    def remember_product_selection():
+        st.session_state.selected_product = st.session_state.dashboard_product
 
     top_col1, top_col2 = st.columns([1, 2])
     with top_col1:
         product = st.selectbox(
             "Product",
             products,
-            index=default_product,
             format_func=lambda node: label(engine.graph, node),
+            key="dashboard_product",
+            on_change=remember_product_selection,
         )
-        st.session_state.selected_product = product
 
     results = reasoner.evaluate_product(product)
     direct_ings = [label(engine.graph, ing) for ing in engine.direct_ingredients(product)]
