@@ -17,8 +17,13 @@ class GraphVisualizerTests(unittest.TestCase):
         graph.add((FOOD.OtherProduct, FOOD.containsIngredient, FOOD.OtherIngredient))
         nodes, edges = abox_product_graph_data(KnowledgeEngine(graph), FOOD.P)
         self.assertEqual(set(nodes), {FOOD.P, FOOD.A, FOOD.B, FOOD.Source, FOOD.Cert, FOOD.Role})
-        self.assertIn((FOOD.B, FOOD.hasFunctionalRole, FOOD.Role), edges)
-        self.assertNotIn(FOOD.OtherProduct, nodes)
+        self.assertCountEqual(edges, [
+            (FOOD.P, FOOD.containsIngredient, FOOD.A),
+            (FOOD.A, FOOD.containsIngredient, FOOD.B),
+            (FOOD.B, FOOD.derivedFrom, FOOD.Source),
+            (FOOD.B, FOOD.hasCertificate, FOOD.Cert),
+            (FOOD.B, FOOD.hasFunctionalRole, FOOD.Role),
+        ])
 
     def test_ontology_graph_can_include_literal_values(self):
         graph = Graph()

@@ -57,7 +57,7 @@ food:KosherCert_01 a food:KosherCert ; rdfs:label "OU Kosher Certificate #K-2026
 food:KosherCert_02 a food:KosherCert ; rdfs:label "OK Kosher Pareve Certificate #K-2026-02" .
 
 #################################################################
-#    Ingredients Catalog (22 Instances, Multi-Level Nesting)
+#    Ingredients Catalog (34 Instances, Multi-Level Nesting)
 #################################################################
 
 # 1. Gelling Agents

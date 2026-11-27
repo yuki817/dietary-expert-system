@@ -1018,6 +1018,13 @@ elif active_page == "Ontology Graphs":
         if selected_term is not None:
             st.write(f"**Selected:** {label(ontology_graph, selected_term)}")
             st.code(str(selected_term))
+            if st.session_state.ontology_graph_choice == "abox":
+                e_number = ontology_graph.value(selected_term, FOOD.eNumber)
+                if e_number is not None:
+                    st.write(f"**INS / E-Number:** {e_number}")
+                ethanol = ontology_graph.value(selected_term, FOOD.ethanolPercentage)
+                if ethanol is not None:
+                    st.write(f"**Ethanol (% v/v):** {ethanol}%")
 
 # =====================================================================
 # PAGE 6: SETTINGS

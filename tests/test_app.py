@@ -2,6 +2,7 @@
 
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 from streamlit.testing.v1 import AppTest
 
@@ -128,6 +129,13 @@ class AppTests(unittest.TestCase):
         next(btn for btn in app.button if btn.label == "Show ABox Graph").click().run()
         self.assertFalse(app.exception)
         self.assertTrue(any("food_compliance_abox.ttl" in item.value for item in app.caption))
+
+        product = next(sb for sb in app.selectbox if sb.label == "A-Box product")
+        with patch("streamlit_agraph.agraph", return_value=FOOD.LCysteine_E920.n3()):
+            product.set_value(FOOD.ArtisanSourdoughBread).run()
+        self.assertFalse(app.exception)
+        self.assertIn("**INS / E-Number:** E920", [item.value for item in app.markdown])
+        self.assertIn("**Ethanol (% v/v):** 0.0%", [item.value for item in app.markdown])
 
     def test_recovers_from_stale_session_recipe_without_add_product(self):
         class LegacyRecipeStub:

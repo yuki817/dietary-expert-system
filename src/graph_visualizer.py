@@ -127,7 +127,8 @@ def graph_data(engine, root, flagged):
 
 def abox_product_graph_data(engine, product):
     """Return one product's ingredient chain and directly related domain nodes."""
-    nodes, edges = graph_data(engine, product, set())
+    nodes, supply_chain_edges = graph_data(engine, product, set())
+    edges = [(source, predicate, target) for source, target, predicate in supply_chain_edges]
     for ingredient, kind in list(nodes.items()):
         if kind != "ingredient":
             continue
