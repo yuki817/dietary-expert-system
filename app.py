@@ -678,6 +678,28 @@ if active_page == "Dashboard":
                     if other_subs:
                         batch_plan[other_ing] = other_subs[0]["substitute"]
 
+                # Drop sub-ingredients that are only reachable through a parent compound ingredient already in batch_plan
+                planned_keys = set(batch_plan)
+                effective_plan: dict[URIRef, URIRef] = {}
+                for ing, rep in batch_plan.items():
+                    visited = {product}
+                    stack = [product]
+                    reachable_without_other_planned = False
+                    while stack:
+                        curr = stack.pop()
+                        for child in engine.direct_ingredients(curr):
+                            if child == ing:
+                                reachable_without_other_planned = True
+                                break
+                            if child not in visited and child not in planned_keys:
+                                visited.add(child)
+                                stack.append(child)
+                        if reachable_without_other_planned:
+                            break
+                    if reachable_without_other_planned:
+                        effective_plan[ing] = rep
+                batch_plan = effective_plan
+
                 btn_col1, btn_col2 = st.columns(2)
                 with btn_col1:
                     run_single = st.button("Simulate reformulation")

@@ -254,17 +254,24 @@ def simulate_multi_reformulation(
     if not replacements:
         raise ValueError("Provide at least one ingredient replacement.")
 
-    modified_graph = _clone_graph(reasoner.base_graph)
+    initial_ingredients = {
+        child for _, child in KnowledgeEngine(reasoner.base_graph).ingredient_edges(product)
+    }
     for original_ingredient, replacement_ingredient in replacements.items():
         if original_ingredient == replacement_ingredient:
             raise ValueError("Select a different replacement ingredient.")
-        if (replacement_ingredient, RDF.type, FOOD.Ingredient) not in modified_graph:
+        if (replacement_ingredient, RDF.type, FOOD.Ingredient) not in reasoner.base_graph:
             raise ValueError("Replacement must be an explicitly typed Ingredient in the graph.")
+        if original_ingredient not in initial_ingredients:
+            raise ValueError(f"The original ingredient {original_ingredient} is not part of this product.")
 
+    modified_graph = _clone_graph(reasoner.base_graph)
+    for original_ingredient, replacement_ingredient in replacements.items():
         engine = KnowledgeEngine(modified_graph)
         parents = {parent for parent, child in engine.ingredient_edges(product) if child == original_ingredient}
         if not parents:
-            raise ValueError(f"The original ingredient {original_ingredient} is not part of this product.")
+            # Already detached because an ancestor compound ingredient was replaced earlier in this batch.
+            continue
         descendants = {child for _, child in engine.ingredient_edges(replacement_ingredient)} | {replacement_ingredient}
         if parents & descendants:
             raise ValueError("This replacement would create a cycle.")

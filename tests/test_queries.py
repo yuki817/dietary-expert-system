@@ -95,6 +95,21 @@ class QueriesTests(unittest.TestCase):
         for std in STANDARDS:
             self.assertEqual(simulated[std]["status"], "Pass")
 
+    def test_simulate_multi_reformulation_handles_compound_ingredient_and_its_subingredients(self):
+        default_reasoner = DietaryReasoner.from_default_files()
+        simulated = simulate_multi_reformulation(
+            default_reasoner,
+            FOOD.BeefCheeseBurger,
+            {
+                FOOD.CheddarCheese: FOOD.WheatFlour,
+                FOOD.AnimalRennet: FOOD.MicrobialRennet,
+                FOOD.PasteurizedMilk: FOOD.WheatFlour,
+                FOOD.BeefPatty_Uncert: FOOD.WheatFlour,
+            },
+        )
+        for std in STANDARDS:
+            self.assertEqual(simulated[std]["status"], "Pass")
+
 
 if __name__ == "__main__":
     unittest.main()
